@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { COPYRIGHT_TEXT } from "@/data/layout";
-import { Chrome, Hexagon } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+import { FaGoogle } from "react-icons/fa";
+import { FaFacebookF } from "react-icons/fa6";
 
 export default function login() {
   return (
@@ -27,20 +28,14 @@ export default function login() {
           <h1 className="mb-4 text-center text-primary text-5xl font-bold font-roboto leading-[57.60px]">
             Log in
           </h1>
-          <Button className="rounded-none w-full text-base font-normal font-roboto text-red-500 hover:bg-red-500 hover:text-white bg-transparent border-2 border-red-500 leading-normal">
-            <Image
-              src="/assets/icons/google.svg"
-              alt="Google Logo"
-              width={24}
-              height={24}
-              className="!fill-gray-500 text-green-600 shadow-xl"
-            />{" "}
+          <Button className="rounded-none w-full text-base font-normal font-roboto text-red-500 hover:bg-red-500 hover:text-white bg-transparent border-2 border-red-500 leading-normal active:bg-red-600">
+            <FaGoogle className="mr-1.5 size-4" />
             Log in with Google
           </Button>
-          <Button className="rounded-none w-full text-base font-normal font-roboto text-indigo-700 hover:bg-indigo-700 hover:text-white bg-transparent border-2 border-indigo-700 leading-normal">
-            <Hexagon className="mr-0.5 size-5" /> Log in with Facebook
+          <Button className="rounded-none w-full text-base font-normal font-roboto text-indigo-700 hover:bg-indigo-700 hover:text-white bg-transparent border-2 border-indigo-700 leading-normal active:bg-indigo-800">
+            <FaFacebookF className="mr-1.5 size-4" /> Log in with Facebook
           </Button>
-          <div className="border-[1px] border-black w-full h-0"></div>
+          <div className="border-[1px] border-stone-600 w-full h-0"></div>
           <Input
             type="text"
             placeholder="Email"
