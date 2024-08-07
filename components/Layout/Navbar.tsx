@@ -22,13 +22,15 @@ export default function Navbar() {
       <div className="w-container mx-auto h-full flex items-center justify-between px-3.5 pt-0.5 lg:p-0">
         <div className="flex items-center justify-start gap-16">
           <div className="logo ml-8">
-            <Image
-              src="/assets/logo.png"
-              alt="logo"
-              width={300}
-              height={40}
-              className="lg:!w-[auto] lg:!h-[30px] w-[161.94px] h-[40px]"
-            />
+            <Link href="/">
+              <Image
+                src="/assets/logo.png"
+                alt="logo"
+                width={300}
+                height={40}
+                className="lg:!w-[auto] lg:!h-[30px] w-[161.94px] h-[40px]"
+              />
+            </Link>
           </div>
           <div className="hidden lg:flex items-center gap-8">
             {navbarLinks.map((link) => (

@@ -3,6 +3,9 @@ import { Roboto, Quicksand } from "next/font/google";
 
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/toaster";
+import { SessionProvider } from "next-auth/react";
+import { auth } from "@/auth";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -20,22 +23,26 @@ export const metadata: Metadata = {
   description: "Created By BdLord",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   return (
-    <html lang="en">
-      <body
-        className={cn(
-          "min-h-screen bg-background font-roboto antialiased",
-          roboto.variable,
-          quicksand.variable
-        )}
-      >
-        {children}
-      </body>
-    </html>
+    <SessionProvider session={session}>
+      <html lang="en">
+        <body
+          className={cn(
+            "min-h-screen bg-background font-roboto antialiased",
+            roboto.variable,
+            quicksand.variable
+          )}
+        >
+          {children}
+          <Toaster />
+        </body>
+      </html>
+    </SessionProvider>
   );
 }

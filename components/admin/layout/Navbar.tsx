@@ -19,7 +19,7 @@ export default function Navbar({
   sidebarToggle: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between w-full h-[10vh] bg-white px-8">
+    <div className="flex items-center justify-between w-full h-[10vh] max-h-16 bg-white px-8">
       {" "}
       <div className="logo flex items-center gap-4 text-gray-700">
         <FaBars onClick={sidebarToggle} className="size-5 cursor-pointer" />
@@ -43,7 +43,7 @@ export default function Navbar({
       </div>
       <div className="flex items-center">
         <TooltipProvider>
-          <Tooltip>
+          <Tooltip delayDuration={0}>
             <TooltipTrigger>
               <div className="notification relative size-10 rounded-full cursor-pointer hover:bg-gray-200 active:bg-gray-300 bg-opacity-80 flex items-center justify-center">
                 <div className="bg-primary-500 rounded-full size-2.5 z-10 absolute right-2.5 top-1.5 opacity-90"></div>

@@ -31,7 +31,7 @@ export function AdminButton({
   return (
     <Button
       className={cn(
-        "text-white font-roboto py-1 px-4 text-base tracking-wider hover:bg-primary-500 focus-visible:!ring-transparent",
+        "text-white font-roboto py-1 px-4 text-base rounded-sm tracking-wider hover:bg-primary-500 focus-visible:!ring-transparent",
         className
       )}
       variant={variant}
@@ -42,7 +42,7 @@ export function AdminButton({
   );
 }
 
-export function AdminContainer({
+export function AdminBox({
   children,
   className,
 }: {
@@ -52,7 +52,7 @@ export function AdminContainer({
   return (
     <div
       className={cn(
-        "w-full bg-white border border-stone-200 shadow px-4 py-3 ",
+        "w-full bg-white border border-stone-200 shadow px-4 py-3 mt-2.5",
         className
       )}
     >

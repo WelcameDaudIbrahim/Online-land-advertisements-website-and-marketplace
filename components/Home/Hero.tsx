@@ -34,7 +34,9 @@ export default function Hero() {
               alt="line"
               width="300"
               height="4"
-              className="-mt-4 "
+              className="-mt-4"
+              priority={true}
+              quality={60}
             />
           </span>
         </h1>
@@ -42,7 +44,7 @@ export default function Hero() {
           Find Your Perfect Place: Your Personalized Path to the Perfect
           Property. Let Us Be Your Real Estate Compass.
         </p>
-        <div className="flex items-center w-full justify-center mt-16">
+        <div className="flex items-center w-full justify-center mt-16 max-w-[1244px]">
           <div className="flex items-center gap-1.5 mb-2">
             <Button className="text-white px-2.5 py-5 rounded-sm text-base font-medium font-roboto leading-[30px] tracking-wide hover:bg-primary-dark border-2 border-primary">
               For Rent

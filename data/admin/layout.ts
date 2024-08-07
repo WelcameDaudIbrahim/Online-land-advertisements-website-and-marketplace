@@ -14,7 +14,7 @@ export const sidebar_links: sidebarLink[] = [
     icon: FaSignsPost,
     sub_links: [
       { name: "All Posts", href: "/admin/posts/all" },
-      { name: "Add Post", href: "/admin/posts/add" },
+      { name: "Create Post", href: "/admin/posts/create" },
     ],
   },
   {
@@ -23,7 +23,7 @@ export const sidebar_links: sidebarLink[] = [
     icon: FaUsers,
     sub_links: [
       { name: "All Users", href: "/admin/users/all" },
-      { name: "Add User", href: "/admin/users/add" },
+      { name: "Create User", href: "/admin/users/create" },
     ],
   },
   // {
@@ -32,7 +32,7 @@ export const sidebar_links: sidebarLink[] = [
   //   icon: FaUsers,
   //   sub_links: [
   //     { name: "All Users", href: "/admin/users/all" },
-  //     { name: "Add User", href: "/admin/users/add" },
+  //     { name: "Crea te User", href: "/admin/users/Crea te" },
   //   ],
   // },
 ];
