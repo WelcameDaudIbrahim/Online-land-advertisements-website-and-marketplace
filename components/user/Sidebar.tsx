@@ -38,7 +38,7 @@ export function Sidebar() {
     },
   ];
   return (
-    <div className="max-w-sm flex flex-grow flex-col px-12 gap-4 py-4">
+    <div className="max-w-sm flex flex-grow w-full flex-col px-12 gap-4 py-4">
       <div className="grid gap-1.5 px-2">
         {links.map((link, index) => (
           <Link

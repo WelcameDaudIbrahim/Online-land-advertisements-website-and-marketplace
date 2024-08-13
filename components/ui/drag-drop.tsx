@@ -1,9 +1,16 @@
-//@tsnocheck
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import { ImCancelCircle } from "react-icons/im";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const DragDropCard = ({
   file,
@@ -12,7 +19,7 @@ const DragDropCard = ({
   index,
 }: {
   file: File;
-  key: string;
+  key?: string;
   handleRemoveFile: (i: number) => void;
   index: number;
 }) => {
@@ -25,8 +32,10 @@ const DragDropCard = ({
       setPercentage(100);
     }, 568);
   }, []);
+  const last_text = file.name.length > 28 && "...";
+  const name = file.name.substring(0, 28) + last_text;
   return (
-    <div className="w-full relative flex items-center flex-col" key={key}>
+    <div className="w-full relative flex items-center flex-col">
       <ImCancelCircle
         className="absolute top-1.5 right-1.5 cursor-pointer hover:text-red-600"
         onClick={() => handleRemoveFile(index)}
@@ -41,7 +50,7 @@ const DragDropCard = ({
           className="size-14 object-contain border border-stone-200 shadow-inne p-1"
         />
         <div>
-          <p className="text-black text-base">{file.name}</p>
+          <p className="text-black text-base">{name}</p>
           <span className="text-gray-400 font-roboto text-sm">
             {Math.floor(file.size / 1024)} KB
           </span>
@@ -68,18 +77,49 @@ const Dragdrop = ({
   maxFileSize = 5242880,
   maxFileAllowed = 4,
   allowedFileTypes,
+  defaultValue,
   onError,
-}: {
+}: // onRemove,
+{
   className?: string;
+  defaultValue?: string[];
   onFilesSelected: (files: File[]) => void;
   maxFileSize?: number;
   maxFileAllowed?: number;
   allowedFileTypes: string;
   onError?: (error: string) => void;
+  // onRemove?: (url: string) => void;
 }) => {
   const [isDraging, setIsDraging] = useState<boolean>(false);
+  // const [mainFile, setMainFile] = useState<File[]>([]);
 
   const [files, setFiles] = useState<File[]>([]);
+
+  useEffect(() => {
+    if (defaultValue !== undefined) {
+      const addValue = async () => {
+        const newFiles = await Promise.all(
+          defaultValue.map(async (val) => {
+            let response = await fetch(val);
+            let data = await response.blob();
+            let metadata = {
+              type: "image/" + val.split(".").at(-1) || "image/png",
+            };
+
+            const file = new File(
+              [data],
+              val.split("/").at(-1) || "image.png",
+              metadata
+            );
+            return file;
+          })
+        );
+        setFiles(newFiles);
+      };
+      addValue();
+    }
+    if (defaultValue) onFilesSelected(files);
+  }, []);
 
   const FilesCheck = (newFiles: File[]) => {
     if (files.length >= maxFileAllowed) {
@@ -94,7 +134,7 @@ const Dragdrop = ({
       if (newFile.size > maxFileSize) {
         if (onError !== undefined) {
           onError(
-            "Maximum File Size Allowed Is " + maxFileAllowed / 1024 + " KB"
+            "Maximum File Size Allowed Is " + maxFileSize / 1024 / 1024 + " MB"
           );
         }
         return [];
@@ -114,10 +154,10 @@ const Dragdrop = ({
     const selectedFiles = event.target.files;
     if (selectedFiles && selectedFiles.length > 0) {
       const newFiles = FilesCheck(Array.from(selectedFiles));
-      setFiles((prevFiles) => [...prevFiles, ...newFiles]);
-    }
-    if (files.length > 0) {
-      onFilesSelected(files);
+      setFiles((prevFiles) => {
+        onFilesSelected([...prevFiles, ...newFiles]);
+        return [...prevFiles, ...newFiles];
+      });
     }
   };
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
@@ -126,19 +166,20 @@ const Dragdrop = ({
     const droppedFiles = event.dataTransfer.files;
     if (droppedFiles.length > 0) {
       const newFiles = FilesCheck(Array.from(droppedFiles));
-      setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+      setFiles((prevFiles) => {
+        onFilesSelected([...prevFiles, ...newFiles]);
+        return [...prevFiles, ...newFiles];
+      });
     }
-    onFilesSelected(files);
     setIsDraging(false);
   };
 
   const handleRemoveFile = (index: number) => {
-    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-    onFilesSelected(files);
+    setFiles((prevFiles) => {
+      onFilesSelected(prevFiles.filter((_, i) => i !== index));
+      return prevFiles.filter((_, i) => i !== index);
+    });
   };
-  useEffect(() => {
-    onFilesSelected(files);
-  }, [files, onFilesSelected]);
   return (
     <section
       className={cn(
@@ -180,16 +221,42 @@ const Dragdrop = ({
         ></label>
       </div>
       {files.length > 0 && (
-        <div className="flex flex-col items-center gap-4 w-full px-2">
-          {files.map((file, i) => (
-            <DragDropCard
-              file={file}
-              key={file.name}
-              index={i}
-              handleRemoveFile={handleRemoveFile}
-            />
-          ))}
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-center">All File Or Images</TableHead>
+              {/* <TableHead className="text-right">
+                Main Image Or Thumbnail
+              </TableHead> */}
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {files.map((file, i) => (
+              <TableRow key={i}>
+                <>
+                  <TableCell className="w-full">
+                    <div className="flex flex-col items-center gap-4 w-full px-2">
+                      <DragDropCard
+                        file={file}
+                        index={i}
+                        handleRemoveFile={handleRemoveFile}
+                      />
+                    </div>
+                  </TableCell>
+                  {/* <TableCell className="text-right max-w-[222px] min-w-[196px] w-full">
+                    <div className=" flex flex-col items-center justify-center">
+                      <Checkbox className="size-5" />
+                      <p className="text-green-800 font-medium tracking-wide">
+                        Yes
+                      </p>
+                    </div>
+                  </TableCell> */}
+                </>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
     </section>
   );

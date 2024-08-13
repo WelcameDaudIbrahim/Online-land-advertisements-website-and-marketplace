@@ -4,11 +4,16 @@ import { Button } from "../ui/button";
 
 export default function WhyChooseUs() {
   return (
-    <div className="px-16 pt-8 pb-4 flex items-center flex-col">
-      <h2 className="text-black text-[40px] font-bold font-roboto leading-[48px] text-center mb-12">
+    <div className="px-1.5 md:px-16 pt-4 md:pt-8 pb-4 flex items-center flex-col">
+      <h2 className="text-black text-base sm:text-xl md:text-[40px] font-bold font-roboto md:leading-[24px] text-center mb-1 md:mb-10">
         Why Choose Us?
       </h2>
-      <div className="flex items-center gap-12 ">
+      <div className="w-full px-1.5 items-center text-center font-roboto text-sm sm:text-base tracking-normal leading-relaxed text-black md:hidden">
+        Browse verified
+        <span className="text-primary sm:font-medium"> listings</span> with
+        detailed info and get instant support for informed decisions.
+      </div>
+      <div className="hidden md:flex items-center gap-12 ">
         <div className="flex items-center gap-4 flex-col">
           <CalendarCheck2 className="size-10" />
           <h4 className=" text-black text-2xl font-bold font-roboto leading-[33.60px]">

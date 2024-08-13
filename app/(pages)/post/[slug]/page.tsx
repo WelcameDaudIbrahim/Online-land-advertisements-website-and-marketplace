@@ -12,6 +12,7 @@ import Posts from "@/components/posts/Posts";
 import { TbCurrentLocation } from "react-icons/tb";
 import { FaFortAwesomeAlt } from "react-icons/fa";
 import { BsFillBuildingsFill } from "react-icons/bs";
+import Images from "./_components/Images";
 
 export default async function Page({ params }: { params: { slug: string } }) {
   const { slug } = params;
@@ -21,6 +22,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
   }
   const post = await db.post.findUnique({
     where: { slug: slug, status: true },
+    include: { User: true, Images: true },
   });
   if (!post) {
     return notFound();
@@ -41,7 +43,11 @@ export default async function Page({ params }: { params: { slug: string } }) {
         title: true,
         bathroom: true,
         bedroom: true,
+        photo: true,
         area: true,
+        thana: true,
+        division: true,
+        district: true,
         updated_at: true,
         property_for: true,
         property_type: true,
@@ -49,68 +55,13 @@ export default async function Page({ params }: { params: { slug: string } }) {
       orderBy: { updated_at: "desc" },
     });
   };
+
   return (
     <>
       <div className="flex max-w-[1360px] mx-auto mt-6 mb-14">
         <div className="flex-1">
           <div className="flex">
-            <div className="px-4 py-2.5 flex flex-col items-center justify-start">
-              <div className="rounded-md p-2 hover:border-primary cursor-pointer border border-gray-400">
-                <Image
-                  src="/assets/house.png"
-                  alt="Image"
-                  width={100}
-                  height={100}
-                  className="rounded-md"
-                />
-              </div>
-              <div className="rounded-md p-2 hover:border-primary cursor-pointer border border-gray-400 mt-3.5">
-                <Image
-                  src="/assets/house.png"
-                  alt="Image"
-                  width={100}
-                  height={100}
-                  className="rounded-md"
-                />
-              </div>
-              <div className="rounded-md p-2 hover:border-primary cursor-pointer border border-gray-400 mt-3.5">
-                <Image
-                  src="/assets/house.png"
-                  alt="Image"
-                  width={100}
-                  height={100}
-                  className="rounded-md"
-                />
-              </div>
-              <div className="rounded-md p-2 hover:border-primary cursor-pointer border border-gray-400 mt-3.5">
-                <Image
-                  src="/assets/house.png"
-                  alt="Image"
-                  width={100}
-                  height={100}
-                  className="rounded-md"
-                />
-              </div>
-              <div className="rounded-md p-2 hover:border-primary cursor-pointer border border-gray-400 mt-3.5">
-                <Image
-                  src="/assets/house.png"
-                  alt="Image"
-                  width={100}
-                  height={100}
-                  className="rounded-md"
-                />
-              </div>
-            </div>
-            <div>
-              <Image
-                src="/assets/house.png"
-                height={800}
-                width={800}
-                quality={80}
-                alt="Image"
-                className="object-contain h-auto max-w-3xl rounded-sm"
-              />
-            </div>
+            <Images photo={post.photo} images={post.Images} />
           </div>
           <div className="px-4 mt-8 w-full">
             <p className="text-gray-700 hover:text-gray-900 text-md font-medium font-roboto leading-[18px] tracking-normal">
@@ -122,7 +73,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
             <div className="flex items-center gap-1 mt-2.5 max-w-3xl">
               <GrMapLocation className="text-gray-800 size-5" />
               <p className="text-black text-lg font-medium font-roboto leading-[21px]">
-                Section 15, Mirpur
+                {post.location}, {post.thana}, {post.district}, {post.division}
               </p>
             </div>
           </div>
@@ -176,25 +127,29 @@ export default async function Page({ params }: { params: { slug: string } }) {
           </h1>
           <div className="grid grid-cols-2 items-start mt-1.5 max-w-[886px]">
             <div className="flex flex-col gap-y-3.5">
-              <div className="flex items-center gap-2 w-full pr-16">
-                <IoBedOutline className="text-gray-800 size-7 mr-2.5" />
-                <p className="font-medium font-roboto text-lg">BedRoom</p>
-                <p className="text-xl text-end font-roboto tracking-wide font-semibold ml-auto">
-                  324
-                </p>
-              </div>
-              <div className="flex items-center gap-2 w-full pr-16">
-                <LuBath className="text-gray-800 size-7 mr-2.5" />
-                <p className="font-medium font-roboto text-lg ">BathRoom </p>
-                <p className="text-xl text-end font-roboto tracking-wide font-semibold ml-auto">
-                  +
-                </p>
-              </div>
+              {post.bedroom && (
+                <div className="flex items-center gap-2 w-full pr-16">
+                  <IoBedOutline className="text-gray-800 size-7 mr-2.5" />
+                  <p className="font-medium font-roboto text-lg">Bedroom</p>
+                  <p className="text-xl text-end font-roboto tracking-wide font-semibold ml-auto">
+                    {post.bedroom}
+                  </p>
+                </div>
+              )}
+              {post.bathroom && (
+                <div className="flex items-center gap-2 w-full pr-16">
+                  <LuBath className="text-gray-800 size-7 mr-2.5" />
+                  <p className="font-medium font-roboto text-lg ">Bathroom </p>
+                  <p className="text-xl text-end font-roboto tracking-wide font-semibold ml-auto">
+                    {post.bathroom}
+                  </p>
+                </div>
+              )}
               <div className="flex items-center gap-2 w-full pr-16">
                 <BsFillBuildingsFill className="text-gray-800 size-7 mr-2.5" />
                 <p className="font-medium font-roboto text-lg">Location</p>
                 <p className="text-xl text-end font-roboto tracking-wide font-semibold ml-auto">
-                  +
+                  {post.district}
                 </p>
               </div>
               <div className="flex items-center gap-2 w-full pr-16">
@@ -228,19 +183,21 @@ export default async function Page({ params }: { params: { slug: string } }) {
             Owners Details
           </div>
           <div className="font-roboto-condensed text-base text-center ml-4 flex items-center gap-2">
-            <div className="flex items-center justify-center bg-primary rounded-full size-7 lg:size-10">
+            <div className="flex items-center justify-center bg-primary rounded-full size-7 lg:size-[40.5px]">
               <Avatar className="size-6 lg:size-9">
-                <AvatarImage src="https://github.com/shadcn.png" />
+                <AvatarImage
+                  src={post.User.image || "https://github.com/shadcn.png"}
+                />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
             </div>
             <div className="flex flex-col">
               <p className="text-start text-black flex items-center text-lg font-medium gap-1 font-roboto leading-ei tracking-normal">
-                Mr. Misses
+                {post.User.name}
                 <MdVerified className="size-5 text-primary-500" />
               </p>
               <p className="text-start text-primary font-roboto text-base font-medium">
-                Verified
+                {post.User.emailVerified && "Verified"}
               </p>
             </div>
           </div>

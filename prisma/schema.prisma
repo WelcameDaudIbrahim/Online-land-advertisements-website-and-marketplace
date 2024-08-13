@@ -67,20 +67,27 @@ enum PropertyType {
 model Image {
   id         Int      @id @default(autoincrement())
   image      String
+  post       Post     @relation(fields: [postId], references: [id])
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  postId     Int
 }
 
 model Post {
   id            Int          @id @default(autoincrement())
   property_id   String       @unique
   slug          String       @unique
-  title         String       @db.VarChar(100)
+  title         String       @db.VarChar(256)
   description   String       @db.VarChar(5000)
   area          Int
   bedroom       Int?
   bathroom      Int?
-  image         String
+  thana         String
+  district      String
+  division      String
+  location      String
+  photo         String
+  Images        Image[]
   property_for  PropertyFor
   property_type PropertyType
   User          User         @relation(fields: [userId], references: [id])
@@ -88,4 +95,44 @@ model Post {
   status        Boolean      @default(false)
   created_at    DateTime     @default(now())
   updated_at    DateTime     @updatedAt
+}
+
+model DeletedPost {
+  id            Int          @id @default(autoincrement())
+  post_id       Int
+  property_id   String       @unique
+  slug          String       @unique
+  title         String       @db.VarChar(256)
+  description   String       @db.VarChar(5000)
+  area          Int
+  bedroom       Int?
+  bathroom      Int?
+  thana         String
+  district      String
+  division      String
+  location      String
+  property_for  PropertyFor
+  property_type PropertyType
+  // User Details
+  userId        String
+  name          String?
+  email         String       @unique
+  emailVerified DateTime?
+  // User Details Ends
+  status        Boolean      @default(false)
+  deleted_at    DateTime     @default(now())
+  created_at    DateTime
+  updated_at    DateTime
+}
+
+model VerificationToken {
+  id         Int      @id @default(autoincrement())
+  email      String
+  user_id    String
+  token      String   @unique
+  expires    DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([email, token])
 }

@@ -238,21 +238,21 @@ export const timeAgo = (date: Date) => {
 
 export const compress = async (
   image: sharp.Sharp,
-  target: number,
-  size: number
+  target?: number,
+  size?: number
 ) => {
-  if (size <= target) return image;
-
-  const metadata = await image.metadata();
-
-  const { width, height } = metadata;
-
-  if (!width || !height) return image;
-  const scaleNumber = size / target;
-
-  const output_image = image.resize(
-    Math.floor(width / scaleNumber),
-    Math.floor(height / scaleNumber)
-  );
+  const output_image = image.jpeg({ quality: 40 });
   return output_image;
 };
+export async function createFile(
+  path: string,
+  name: string,
+  type: string
+): Promise<File> {
+  let response = await fetch(path);
+  let data = await response.blob();
+  let metadata = {
+    type: type,
+  };
+  return new File([data], name, metadata);
+}

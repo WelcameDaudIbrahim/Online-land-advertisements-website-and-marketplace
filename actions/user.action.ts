@@ -1,5 +1,6 @@
 "use server";
 
+import { v4 as uuidv4 } from "uuid";
 import { auth } from "@/auth";
 import db from "@/db/db";
 import { compress } from "@/lib/utils";
@@ -13,6 +14,7 @@ import { mkdir, unlink, writeFile } from "fs/promises";
 import path from "path";
 import sharp from "sharp";
 import { compare, hash } from "bcryptjs";
+import { sendVerificationMail } from "./mail";
 
 export const updateSettings = async (
   prevState: unknown,
@@ -164,4 +166,61 @@ export const changePassword = async (
     data: { password: newHashedPassword },
   });
   return { currentPassword: ["Password Changed Successfully"] };
+};
+
+export const getEmailByToken = async (token: string) => {
+  const verification_token = await db.verificationToken.findUnique({
+    where: { token },
+    select: { email: true },
+  });
+  if (!verification_token) return null;
+  return verification_token.email;
+};
+
+export const getTokenByUserId = async (id: string) => {
+  const verification_token = await db.verificationToken.findFirst({
+    where: { user_id: id },
+    select: { token: true },
+  });
+  if (!verification_token) return null;
+  return verification_token.token;
+};
+export const getTokenByEmail = async (email: string) => {
+  const verification_token = await db.verificationToken.findFirst({
+    where: { email },
+    select: { token: true },
+  });
+  if (!verification_token) return null;
+  return verification_token.token;
+};
+
+export const sendVerification = async (email: string) => {
+  const existingUser = await db.user.findUnique({
+    where: { email },
+    select: { emailVerified: true, id: true },
+  });
+  if (!existingUser || existingUser.emailVerified) return null;
+
+  const existingToken = await getTokenByEmail(email);
+  if (existingToken) {
+    await db.verificationToken.delete({
+      where: { token: existingToken },
+    });
+  }
+
+  const token = await db.verificationToken.create({
+    data: {
+      email,
+      user_id: existingUser.id,
+      token: uuidv4(),
+      expires: new Date(Date.now() + 1000 * 60 * 10),
+    },
+  });
+
+  sendVerificationMail({
+    email,
+    link: `${process.env.NEXT_SITE_URL}/verification/${token.token}`,
+  });
+
+  return true;
 };

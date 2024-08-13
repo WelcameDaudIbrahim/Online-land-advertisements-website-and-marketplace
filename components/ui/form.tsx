@@ -179,18 +179,20 @@ const FormMessage = React.forwardRef<
 function SubmitButton({
   className,
   disabled,
+  isPending,
   children,
   ...props
 }: {
   className?: string;
   disabled?: boolean | undefined;
+  isPending?: boolean;
   children: React.ReactNode;
   props?: React.ButtonHTMLAttributes<HTMLButtonElement>;
 }) {
   const { pending } = useFormStatus();
   return (
     <Button
-      disabled={disabled || pending}
+      disabled={disabled || isPending || pending}
       type="submit"
       {...props}
       className={cn(
@@ -200,7 +202,7 @@ function SubmitButton({
         className
       )}
     >
-      {pending ? <LoadingSpinner /> : children}
+      {isPending || pending ? <LoadingSpinner /> : children}
     </Button>
   );
 }

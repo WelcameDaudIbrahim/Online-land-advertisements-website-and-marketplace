@@ -9,6 +9,7 @@ import { signIn, signOut } from "@/auth";
 import { AuthError } from "next-auth";
 import { DEFAULT_REDIRECT_AFTER_LOGIN } from "@/routes";
 import { revalidatePath } from "next/cache";
+import { sendVerification } from "./user.action";
 
 export const login = async (prevState: unknown, formData: FormData) => {
   const result = logInSchema.safeParse(Object.fromEntries(formData));
@@ -69,17 +70,19 @@ export const signup = async (prevState: unknown, formData: FormData) => {
     data: { name, email, password: hashedPassword },
   });
 
-  // try {
-  //   await signIn("credentials", {
-  //     email: user.email,
-  //     password: user.password,
-  //     redirectTo: DEFAULT_REDIRECT_AFTER_LOGIN,
-  //   });
-  // } catch (err) {
-  //   console.log(err);
+  sendVerification(user.email);
 
-  //   return { error: "Something Went Wrong" };
-  // }
+  try {
+    await signIn("credentials", {
+      email: user.email,
+      password: user.password,
+      redirectTo: DEFAULT_REDIRECT_AFTER_LOGIN,
+    });
+  } catch (err) {
+    console.log(err);
+
+    return { error: "Something Went Wrong" };
+  }
 
   return redirect(DEFAULT_REDIRECT_AFTER_LOGIN);
 };

@@ -23,13 +23,13 @@ export default function Navbar_Avatar() {
       <div className="flex items-center">
         <DropdownMenu onOpenChange={(open) => setIsAvatarOpen(open)}>
           <DropdownMenuTrigger className="font-roboto text-base text-center ml-4 flex items-center gap-2">
-            <div className="flex items-center justify-center bg-primary rounded-full size-7 lg:size-10">
-              <Avatar className="size-6 lg:size-9">
+            <div className="flex items-center justify-center bg-primary rounded-full size-8 md:size-10">
+              <Avatar className="size-8 md:size-9">
                 <AvatarImage src={user.image || "/assets/profile.png"} />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
             </div>
-            <div className="flex items-center">
+            <div className="hidden md:flex items-center">
               <div className="flex flex-col">
                 <p className="text-start text-black text-base font-medium gap-1.5 font-quicksand leading-normal tracking-tight hidden sm:block">
                   {user.name}

@@ -12,6 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { FaBars } from "react-icons/fa";
+import Link from "next/link";
 
 export default function Navbar({
   sidebarToggle,
@@ -23,13 +24,17 @@ export default function Navbar({
       {" "}
       <div className="logo flex items-center gap-4 text-gray-700">
         <FaBars onClick={sidebarToggle} className="size-5 cursor-pointer" />
-        <Image
-          src="/assets/logo.png"
-          alt="logo"
-          width={300}
-          height={40}
-          className="lg:!w-[auto] lg:!h-[30px] w-[161.94px] h-[40px]"
-        />
+        <Link href="/">
+          <Image
+            src="/assets/logo.png"
+            alt="logo"
+            width={300}
+            height={40}
+            priority
+            quality={"35"}
+            className="lg:!w-[auto] lg:!h-[30px] w-[161.94px] h-[40px]"
+          />
+        </Link>
       </div>
       <div className="flex">
         <Input

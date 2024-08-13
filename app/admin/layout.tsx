@@ -2,6 +2,7 @@
 import Sidebar from "@/components/admin/layout/Sidebar";
 import Navbar from "@/components/admin/layout/Navbar";
 import { useState } from "react";
+import { AdminGate } from "@/components/ui/gates";
 
 export default function RootLayout({
   children,
@@ -13,7 +14,7 @@ export default function RootLayout({
     setIsSidebarOpen(!isSidebarOpen);
   };
   return (
-    <>
+    <AdminGate>
       <div className="w-full flex flex-col">
         <Navbar sidebarToggle={toggle} />
         <div className="w-full flex">
@@ -21,6 +22,6 @@ export default function RootLayout({
           <div className="bg-accent w-full">{children}</div>
         </div>
       </div>
-    </>
+    </AdminGate>
   );
 }

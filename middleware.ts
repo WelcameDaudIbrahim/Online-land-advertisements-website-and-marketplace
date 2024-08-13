@@ -7,10 +7,9 @@ import {
   DEFAULT_REDIRECT_AFTER_LOGIN,
   PRIVATE_ROUTES_PREFIX,
 } from "./routes";
-import { notFound } from "next/navigation";
 const { auth } = NextAuth(authConfig);
 
-export default auth((req, res) => {
+export default auth((req) => {
   const { nextUrl } = req;
 
   const { pathname } = nextUrl;
@@ -21,10 +20,8 @@ export default auth((req, res) => {
     (PRIVATE_ROUTE_PREFIX) => pathname.startsWith(PRIVATE_ROUTE_PREFIX)
   ).length;
 
-  const isAdminRoute = pathname.startsWith(ADMIN_ROUTE_PREFIX);
   const isApiAuthRoute = pathname.startsWith(API_AUTH_ROUTE_PREFIX);
   const isAuthRoute = AUTH_ROUTES.includes(pathname);
-  const IsAdmin = req.auth?.user.role === "admin";
 
   if (isApiAuthRoute) return;
 
@@ -33,10 +30,6 @@ export default auth((req, res) => {
   }
 
   if (!isLogin && isPrivateRoute) {
-    return Response.redirect(new URL("/log-in", nextUrl));
-  }
-
-  if ((isAdminRoute && !IsAdmin) || (isAdminRoute && !isLogin)) {
     return Response.redirect(new URL("/log-in", nextUrl));
   }
 

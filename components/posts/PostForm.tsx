@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+"use client";
+import React, { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -10,12 +11,14 @@ import {
   FormMessage,
   SubmitButton,
 } from "@/components/ui/form";
-import { z } from "zod";
 import { Input } from "@/components/ui/input";
 import Editor from "@/components/Editor";
-import { useFormState } from "react-dom";
-import { createPost } from "@/actions/post.action";
-import { createPostSchema } from "@/zodSchema/postSchema";
+import {
+  createPost,
+  updatePost,
+  updatePostStatus,
+} from "@/actions/post.action";
+import { createPostSchema, updatePostSchema } from "@/zodSchema/postSchema";
 import Dragdrop from "@/components/ui/drag-drop";
 import { toast } from "@/components/ui/use-toast";
 import {
@@ -28,20 +31,80 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { capitalizeFirstLetter } from "@/lib/utils";
 import { districts, divisions, thanas } from "@/data/admin/data";
+import Image from "next/image";
+import { $Enums } from "@prisma/client";
+import useAuth from "@/hooks/useAuth";
+import { Alert } from "../ui/alert-dialog";
 
-export default function CreatePost() {
-  const [descriptionInput, setDescriptionInput] = useState("");
-  const [imageInput, setImageInput] = useState<File>();
+export default function PostForm({
+  id,
+  postData,
+}: {
+  id?: number;
+  postData?: {
+    property_id: string;
+    slug: string;
+    title: string;
+    photo: string;
+    images: string[];
+    description: string;
+    area: number;
+    bedroom: number | null;
+    bathroom: number | null;
+    property_for: $Enums.PropertyFor;
+    property_type: $Enums.PropertyType;
+    thana: string;
+    district: string;
+    division: string;
+    location: string;
+    status: boolean;
+    created_at: Date;
+    updated_at: Date;
+  };
+}) {
+  const [isPending, startTransition] = useTransition();
+  const [isStatusPending, startStatusTransition] = useTransition();
+  const [isActive, setIsActive] = useState<boolean>(postData?.status || false);
 
-  const [state, action] = useFormState(createPost, null);
-
-  const form = useForm<z.infer<typeof createPostSchema>>({
-    resolver: zodResolver(createPostSchema),
+  const [mainImagePreviewSrc, setMainImagePreviewSrc] = useState(
+    postData ? postData.photo : ""
+  );
+  let defaultValues = {
+    title: "",
+    description: "",
+  };
+  let updateDefaultValues = {
+    title: "",
+    description: "",
+    area: "",
+    bathroom: "",
+    thana: "",
+    bedroom: "",
+    district: "",
+    division: "",
+    location: "",
+    property_for: "",
+    property_type: "",
+  };
+  if (postData) {
+    updateDefaultValues = {
+      title: postData.title,
+      description: postData.description,
+      area: postData.area ? postData.area.toString() : "0",
+      bathroom: postData.bathroom ? postData.bathroom.toString() : "0",
+      bedroom: postData.bedroom ? postData.bedroom.toString() : "0",
+      thana: postData.thana,
+      district: postData.district,
+      division: postData.division,
+      location: postData.location,
+      property_for: postData.property_for,
+      property_type: postData.property_type,
+    };
+  }
+  const form = useForm<Zod.infer<typeof createPostSchema>>({
+    resolver: zodResolver(id ? updatePostSchema : createPostSchema),
     mode: "onChange",
-    defaultValues: {
-      title: "",
-      description: "",
-    },
+    defaultValues: updateDefaultValues ? updateDefaultValues : defaultValues,
   });
 
   const selected_division = form.watch("division");
@@ -49,107 +112,59 @@ export default function CreatePost() {
 
   const propertyType = form.watch("property_type");
 
-  useEffect(() => {
-    if (state?.title !== undefined) {
-      form.setError("title", {
-        type: "value",
-        message: state?.title?.at(0) || "",
-      });
-    }
-    if (state?.description !== undefined) {
-      form.setError("description", {
-        type: "value",
-        message: state?.description?.at(0) || "",
-      });
-    }
-    if (state?.bathroom !== undefined) {
-      form.setError("bathroom", {
-        type: "value",
-        message: state?.bathroom?.at(0) || "",
-      });
-    }
-    if (state?.bedroom !== undefined) {
-      form.setError("bedroom", {
-        type: "value",
-        message: state?.bedroom?.at(0) || "",
-      });
-    }
-    if (state?.property_for !== undefined) {
-      form.setError("property_for", {
-        type: "value",
-        message: state?.property_for?.at(0) || "",
-      });
-    }
-    if (state?.property_type !== undefined) {
-      form.setError("property_type", {
-        type: "value",
-        message: state?.property_type?.at(0) || "",
-      });
-    }
-    if (state?.area !== undefined) {
-      form.setError("area", {
-        type: "value",
-        message: state?.area?.at(0) || "",
-      });
-    }
-    if (state?.division !== undefined) {
-      form.setError("division", {
-        type: "value",
-        message: state?.division?.at(0) || "",
-      });
-    }
-    if (state?.district !== undefined) {
-      form.setError("district", {
-        type: "value",
-        message: state?.district?.at(0) || "",
-      });
-    }
-    if (state?.thana !== undefined) {
-      form.setError("thana", {
-        type: "value",
-        message: state?.thana?.at(0) || "",
-      });
-    }
-    if (state?.location !== undefined) {
-      form.setError("location", {
-        type: "value",
-        message: state?.location?.at(0) || "",
-      });
-    }
-    // if (state?.image !== undefined) {
-    //   form.setError("image", {
-    //     type: "value",
-    //     message: state?.image?.at(0) || "",
-    //   });
-    // }
-  }, [
-    form,
-    state?.title,
-    state?.description,
-    state?.bathroom,
-    state?.bedroom,
-    state?.area,
-    state?.property_for,
-    state?.property_type,
-    state?.division,
-    state?.district,
-    state?.thana,
-    state?.location,
-    // state?.image,
-  ]);
+  const onSubmit = async (data: Zod.infer<typeof createPostSchema>) => {
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("description", data.description);
+      formData.append("area", data.area.toString());
+      if (data.image) {
+        formData.append("image", data.image);
+      }
+      if (data.photos) {
+        data.photos.map((photo, i: number) => {
+          formData.append(`photos${i}`, photo);
+        });
+      }
+      formData.append("division", data.division);
+      formData.append("district", data.district);
+      formData.append("thana", data.thana);
+      formData.append("location", data.location);
+      if (data.bedroom) {
+        formData.append("bedroom", data.bedroom.toString());
+      }
+      if (data.bathroom) {
+        formData.append("bathroom", data.bathroom.toString());
+      }
+      formData.append("property_for", data.property_for);
+      formData.append("property_type", data.property_type);
+      let returnValue;
+      if (id) {
+        returnValue = await updatePost(formData, id);
+      } else {
+        returnValue = await createPost(formData);
+      }
+      if (returnValue !== undefined) {
+        for (const [_, value] of Object.entries(returnValue)) {
+          form.setError("root", { message: value.join("\n") });
+        }
+      }
+    });
+  };
 
-  const formRef = useRef<HTMLFormElement>(null);
+  const user = useAuth();
+  if (!user) return;
 
+  const { role } = user;
   return (
     <Form {...form}>
-      <form
-        ref={formRef}
-        action={action}
-        // onSubmit={form.handleSubmit((_, e) => {
-        //   e?.preventDefault();
-        //   formRef?.current?.submit();
-        // })}
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        {form.formState.errors.root && (
+          <p className="mb-2.5 text-red-600 text-lg font-medium tracking-wide font-roboto">
+            {form.formState.errors.root.message}
+          </p>
+        )}
+
         <div className="grid grid-cols-2 gap-8">
           <div className="col-span-2">
             <FormField
@@ -181,19 +196,9 @@ export default function CreatePost() {
                     <FormLabel>Description</FormLabel>
                     <FormControl>
                       <>
-                        <input
-                          type="hidden"
-                          hidden
-                          value={descriptionInput}
-                          {...form.register("description")}
-                          className="hidden opacity-0 invisible"
-                        />{" "}
                         <Editor
-                          description={"Description"}
-                          onChange={(text) => {
-                            setDescriptionInput(text);
-                            field.onChange(text);
-                          }}
+                          description={postData?.description || "Description"}
+                          onChange={(text) => field.onChange(text)}
                         />
                       </>
                     </FormControl>
@@ -204,7 +209,7 @@ export default function CreatePost() {
             />
           </div>
           <div>
-            {/* <FormField
+            <FormField
               control={form.control}
               name="image"
               render={({ field }) => {
@@ -213,30 +218,70 @@ export default function CreatePost() {
                     <FormLabel>Main Image Or Thumbnail</FormLabel>
                     <FormControl>
                       <>
-                        <input
-                          type="text"
-                          hidden
-                          value={imageInput && +imageInput}
-                          {...form.register("image")}
-                          className="hidden opacity-0 invisible"
-                          multiple
+                        <Input
+                          type="file"
+                          id="mainImage"
+                          accept=".jpg,.jpeg,.png"
+                          className="hidden opacity-0"
+                          onChange={(e) => {
+                            if (e.target.files !== null) {
+                              if (e.target.files[0] instanceof File) {
+                                field.onChange(e.target.files[0]);
+                                setMainImagePreviewSrc(
+                                  URL.createObjectURL(e.target.files[0])
+                                );
+                              }
+                            }
+                          }}
                         />
+                        <label
+                          htmlFor="mainImage"
+                          className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 border border-primary text-black w-full border-dashed rounded-md bg-transparent hover:bg-transparent hover:border-solid"
+                        >
+                          Chick Here To Upload Image
+                        </label>
+                        {mainImagePreviewSrc !== "" && (
+                          <Image
+                            src={mainImagePreviewSrc}
+                            width={400}
+                            height={200}
+                            alt="Main Image Or Thumbnail"
+                            className="w-full !h-auto rounded-md"
+                          />
+                        )}
+                      </>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+          </div>
+          <div>
+            <FormField
+              control={form.control}
+              name="photos"
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel>More Image Or Photos (Optional)</FormLabel>
+                    <FormControl>
+                      <>
                         <Dragdrop
                           className="w-full"
-                          onFilesSelected={(file) => {
-                            file.length > 0 ? field.onChange("file[0]") : "";
-                            setImageInput(file[0]);
+                          onFilesSelected={(files) => {
+                            field.onChange(files);
                           }}
+                          defaultValue={postData?.images || []}
                           allowedFileTypes=".jpg,.jpeg,.png"
-                          maxFileAllowed={1}
+                          maxFileAllowed={4}
                           onError={(err) => {
                             toast({
                               variant: "destructive",
                               title: err,
                             });
-                            form.setError("image", {
+                            form.setError("photos", {
                               type: "value",
-                              message: err,
                             });
                           }}
                         />
@@ -246,9 +291,8 @@ export default function CreatePost() {
                   </FormItem>
                 );
               }}
-            /> */}
+            />
           </div>
-          <div></div>
           <div>
             <FormField
               control={form.control}
@@ -435,6 +479,7 @@ export default function CreatePost() {
                     <Input
                       type="text"
                       placeholder="Location"
+                      disabled={!form.watch("thana")}
                       className="p-3 border-2 border-stone-300 rounded-sm w-full placeholder-stone-500 text-black text-base font-normal font-roboto leading-normal"
                       {...field}
                     />
@@ -444,7 +489,13 @@ export default function CreatePost() {
               )}
             />
           </div>
-          <div className={`${propertyType === "commercial" && "col-span-2"}`}>
+          <div
+            className={`${
+              propertyType === undefined || propertyType === "commercial"
+                ? "col-span-2"
+                : ""
+            }`}
+          >
             <FormField
               control={form.control}
               name="bathroom"
@@ -508,7 +559,56 @@ export default function CreatePost() {
               )}
             />
           </div>
-          <SubmitButton className="col-span-2">Create</SubmitButton>
+          {role === "admin" && id !== undefined && postData && (
+            <>
+              <div className="flex justify-between items-center w-full px-8 py-2.5 col-span-2">
+                <div>Post Activation :</div>
+                <div className="flex items-center">
+                  <label className="inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isActive}
+                      onChange={(e) => setIsActive(e.target.checked)}
+                      className="sr-only opacity-0 peer"
+                    />
+                    <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white peer-checked:ring-teal-800 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+                    <span
+                      className={`ms-3 text-sm font-medium ${
+                        isActive ? "text-teal-800" : "text-red-800"
+                      } dark:text-gray-300`}
+                    >
+                      {isActive ? "Active" : "Inactive"}
+                    </span>
+                  </label>
+                  {isActive !== postData.status && (
+                    <Alert
+                      description="Are you sure you want to update post status? And it will reflect to all the users."
+                      onContinue={() => {
+                        startStatusTransition(async () => {
+                          await updatePostStatus(id, isActive);
+                        });
+                      }}
+                    >
+                      <SubmitButton
+                        isPending={isStatusPending}
+                        disabled={isStatusPending}
+                        className="ml-4"
+                      >
+                        ✓
+                      </SubmitButton>
+                    </Alert>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+          <SubmitButton
+            isPending={isPending}
+            disabled={isPending}
+            className="col-span-2"
+          >
+            {id === undefined ? "Post" : "Update"}
+          </SubmitButton>
         </div>
       </form>
     </Form>
