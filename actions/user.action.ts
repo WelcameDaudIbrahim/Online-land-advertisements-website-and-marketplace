@@ -208,7 +208,7 @@ export const sendVerification = async (email: string) => {
     where: { email },
     select: { emailVerified: true, id: true },
   });
-  if (!existingUser || existingUser.emailVerified) return null;
+  if (!existingUser || !!existingUser.emailVerified) return null;
 
   const existingToken = await getTokenByEmail(email);
   if (existingToken) {
@@ -226,7 +226,7 @@ export const sendVerification = async (email: string) => {
     },
   });
 
-  sendVerificationMail({
+  await sendVerificationMail({
     email,
     link: `${process.env.NEXT_SITE_URL}/verification/${token.token}/`,
   });

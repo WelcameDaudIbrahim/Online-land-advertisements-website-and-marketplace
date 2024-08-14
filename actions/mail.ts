@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import Mail from "nodemailer/lib/mailer";
 
-export const sendMail = (options: Mail.Options) => {
+export const sendMail = async (options: Mail.Options) => {
   try {
     var transporter = nodemailer.createTransport({
       service: "gmail",
@@ -10,10 +10,11 @@ export const sendMail = (options: Mail.Options) => {
         pass: process.env.NEXT_PRIVATE_MAIL_PASS,
       },
     });
-
-    transporter.sendMail(options, function (err, info) {
-      if (err) console.log(err);
-      else console.log(info);
+    await new Promise((resolve, reject) => {
+      transporter.sendMail(options, function (err, info) {
+        if (err) console.log(err);
+        else console.log(info);
+      });
     });
   } catch (err) {
     console.log(err);
@@ -21,14 +22,14 @@ export const sendMail = (options: Mail.Options) => {
   return true;
 };
 
-export const sendVerificationMail = ({
+export const sendVerificationMail = async ({
   email,
   link,
 }: {
   email: string;
   link: string;
 }) => {
-  sendMail({
+  await sendMail({
     from: "bdlord@no-reply.com",
     to: email,
     subject: "Please Verify Your Email",
