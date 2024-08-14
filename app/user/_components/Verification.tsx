@@ -18,7 +18,7 @@ export default function Verification() {
   const [isPending, startTransition] = useTransition();
   return (
     !emailVerified && (
-      <Alert className="mt-1.5 mb-2.5 w-fit px-4 mr-auto ml-4 border-red-800">
+      <Alert className="mt-1.5 mb-2.5 w-fit px-4 md:pr-8 mr-auto ml-4 border-red-800">
         {isPending ? (
           <LoadingSpinner className="size-3.5" />
         ) : (

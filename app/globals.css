@@ -68,16 +68,22 @@
     @apply bg-background text-foreground;
   }
 
-  .transition-width {
-    transition-property: width, max-width, min-width;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
+  .duration-5000 {
+    animation-duration: 50000ms;
   }
-}
 
-input,
-input:focus-within,
-input:focus,
-input:hover {
-  outline: none;
+  .transition-width {
+    .transition-width {
+      transition-property: width, max-width, min-width;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 150ms;
+    }
+  }
+
+  input,
+  input:focus-within,
+  input:focus,
+  input:hover {
+    outline: none;
+  }
 }

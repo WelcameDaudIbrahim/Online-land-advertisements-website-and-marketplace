@@ -178,11 +178,14 @@ export async function updatePost(formData: FormData, post_id: number) {
   if (user.user.role !== "admin") {
     const isUsersPost = await db.post.findUnique({
       where: { id: post_id },
-      select: { userId: true },
+      select: { userId: true, User: { select: { emailVerified: true } } },
     });
 
     if (!isUsersPost || isUsersPost.userId !== user_id) {
       return { title: ["Something Went Wrong!"] };
+    }
+    if (isUsersPost.User.emailVerified === null) {
+      return { title: ["You Must Verify Your E-mail"] };
     }
   }
 
