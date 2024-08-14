@@ -80,10 +80,11 @@ export const signup = async (prevState: unknown, formData: FormData) => {
     });
   } catch (err) {
     console.log(err);
-    return { error: "Something Went Wrong" };
+    // return { error: "Something Went Wrong" };
   }
 
-  return redirect(DEFAULT_REDIRECT_AFTER_LOGIN);
+  return { error: "200" };
+  redirect(DEFAULT_REDIRECT_AFTER_LOGIN);
 };
 
 export const getUserById = async (id: string) => {

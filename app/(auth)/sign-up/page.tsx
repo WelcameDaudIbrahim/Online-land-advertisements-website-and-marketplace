@@ -36,6 +36,10 @@ export default function Page() {
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState(false);
 
+  if (state && state.error === "200") {
+    window.location.reload();
+  }
+
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const formRef = useRef<HTMLFormElement>(null);
