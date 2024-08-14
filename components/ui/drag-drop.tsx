@@ -115,10 +115,10 @@ const Dragdrop = ({
           })
         );
         setFiles(newFiles);
+        onFilesSelected(newFiles);
       };
       addValue();
     }
-    if (defaultValue) onFilesSelected(files);
   }, []);
 
   const FilesCheck = (newFiles: File[]) => {

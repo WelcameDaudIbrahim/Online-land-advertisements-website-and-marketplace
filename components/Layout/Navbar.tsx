@@ -18,8 +18,6 @@ import {
 
 export function MobileNav() {
   const pathname = usePathname();
-  const resolution = window.innerWidth;
-  const isMobileOrTablet = resolution <= 1024;
   return (
     <>
       <Sheet>
@@ -29,16 +27,14 @@ export function MobileNav() {
         <SheetContent side={"left"} className="w-[400px] sm:w-[540px]">
           <SheetHeader>
             <SheetTitle>
-              {isMobileOrTablet && (
-                <Image
-                  src="/assets/logo.png"
-                  alt="logo"
-                  width={300}
-                  height={40}
-                  quality={40}
-                  className="!w-[auto] !h-[30px]"
-                />
-              )}
+              <Image
+                src="/assets/logo.png"
+                alt="logo"
+                width={300}
+                height={40}
+                quality={40}
+                className="!w-[auto] !h-[30px]"
+              />
             </SheetTitle>
             <SheetDescription>
               <ul className="mt-6 w-full">
@@ -121,12 +117,14 @@ export default function Navbar() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu> */}
-          <Button className="relative ml-0 md:ml-8 px-2.5 md:px-4 py-0 h-[34.6px] md:py-1 bg-secondary rounded-sm justify-center items-center border-none hover-none drop-shadow-[2px_2px_0px_rgba(0,0,0,0.55))] text-zinc-100 text-xs md:text-base font-medium font-roboto leading-3 md:leading-normal tracking-tight">
-            <span className="absolute top-[-12%] right-[-15%] text-white bg-primary border border-primary-dark text-xs px-1 py-0.5 rounded-sm">
-              Free
-            </span>
-            Post Property
-          </Button>
+          <Link href="/post/create">
+            <Button className="relative ml-0 md:ml-8 px-2.5 md:px-4 py-0 h-[34.6px] md:h-auto md:py-2.5 bg-secondary rounded-sm justify-center items-center border-none hover-none drop-shadow-[2px_2px_0px_rgba(0,0,0,0.55))] text-zinc-100 text-xs md:text-base font-medium font-roboto leading-3 md:leading-normal tracking-tight">
+              <span className="absolute top-[-12%] right-[-15%] text-white bg-primary border border-primary-dark text-xs px-1 py-0.5 rounded-sm">
+                Free
+              </span>
+              Post Property
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

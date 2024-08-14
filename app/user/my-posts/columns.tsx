@@ -1,6 +1,6 @@
 "use client";
 
-import { deletePost, updatePostStatus } from "@/actions/post.action";
+import { deactivatePostStatus } from "@/actions/post.action";
 import { Alert } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +18,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 export type Post = {
-  id: number;
+  slug: string;
   property_id: string;
   title: string;
   area: number;
@@ -26,14 +26,8 @@ export type Post = {
   property_for: "sale" | "rent";
   property_type: "residential" | "commercial";
   status: boolean;
-  created_at: Date;
-  updated_at: Date;
 };
 export const columns: ColumnDef<Post>[] = [
-  {
-    accessorKey: "id",
-    header: "Id",
-  },
   {
     accessorKey: "property_id",
     header: "Property Id",
@@ -119,32 +113,17 @@ export const columns: ColumnDef<Post>[] = [
       );
     },
   },
-  {
-    accessorKey: "created_at",
-    header: "Created At",
-    cell: ({ row }) => {
-      const created_at: Date = row.getValue("created_at");
 
-      return (
-        <div className="text-right">
-          {created_at.toLocaleDateString("en-US")}
-        </div>
-      );
-    },
-  },
   {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      // if (!id || !status) return null;
       return <MoreColumns row={row} />;
     },
   },
 ];
 
 export default function MoreColumns({ row }: { row: Row<Post> }) {
-  const id = row.getValue("id");
-  const status = row.getValue("status");
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -155,53 +134,31 @@ export default function MoreColumns({ row }: { row: Row<Post> }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <Link href={`/admin/posts/edit/${row.getValue("id")}`}>
+        <Link href={`/user/post/edit/${row.original.slug}`}>
           <DropdownMenuItem className="hover:bg-accent cursor-pointer">
             Edit
           </DropdownMenuItem>
         </Link>
-        <DropdownMenuItem className="hover:bg-accent cursor-pointer" asChild>
-          <Alert
-            description="Are you sure you want to update post status? And it will reflect to all the users."
-            onContinue={async () => {
-              const returnValue = await updatePostStatus(
-                Number(id),
-                !Boolean(status),
-                "/admin/posts/all"
-              );
-              if (returnValue) {
-                toast({
-                  title: "Post Status Updated Successfully",
-                  description: "This might reflect to all the users.",
-                });
-              }
-            }}
-          >
-            <p className="relative flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-accent cursor-pointer">
-              {status ? "Deactive" : "Activate"}
-            </p>
-          </Alert>
-        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="hover:bg-red-800 hover:text-white cursor-pointer"
           asChild
         >
           <Alert
-            description="Are you sure you want to delete post? And it will reflect to all the users.This action cannot be undone."
+            description="Are you sure you want to deactivate this post?"
             onContinue={async () => {
-              const returnValue = await deletePost(Number(id));
+              const returnValue = await deactivatePostStatus(row.original.slug);
               if (returnValue) {
                 toast({
-                  title: returnValue.title[0] || "Something Went Wrong",
-                  description: "This will reflect to all the users.",
+                  title: returnValue.message[0] || "Something Went Wrong",
+                  description: "This will reflect to everybody",
                 });
               }
             }}
-            buttonText="Delete"
+            buttonText="Deactive"
           >
             <p className="relative flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-accent hover:bg-red-800 hover:text-white cursor-pointer">
-              Delete
+              Deactive
             </p>
           </Alert>
         </DropdownMenuItem>

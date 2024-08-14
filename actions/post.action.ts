@@ -186,29 +186,24 @@ export async function updatePost(formData: FormData, post_id: number) {
     }
   }
 
-  let slug = data.title
-    .replaceAll(/[!@#$%^&*()+=[\]{};:'"<>,.?|\\`~ ]/g, "_")
-    .toLocaleLowerCase();
-
-  const isPostExist = await post_exists({ where: { slug } });
-
-  let id = 0;
-  const LastPost = await db.post.findMany({
-    orderBy: { id: "desc" },
-    select: { id: true },
-    take: 1,
+  const existPost = await db.post.findUnique({
+    where: { id: post_id },
+    select: { property_id: true, title: true },
   });
-  if (LastPost.length > 0) {
-    id = LastPost[0].id;
+  if (!existPost) {
+    return { title: ["Something Went Wrong!"] };
   }
-  const property_id = `ID4${user_id}${id + 1}`;
-  if (isPostExist) {
-    const post_exist_property_id = property_id.replaceAll(
-      "ID",
-      Math.floor(id / 34).toString()
-    );
-    slug = `${slug}_${post_exist_property_id}${id + 1}`;
-  }
+
+  const slug =
+    data.title !== existPost.title
+      ? {
+          slug: data.title
+            .replaceAll(/[!@#$%^&*()+=[\]{};:'"<>,.?|\\`~ ]/g, "_")
+            .toLocaleLowerCase(),
+        }
+      : {};
+
+  const property_id = `${existPost.property_id}`;
 
   data.photos = [];
 
@@ -279,7 +274,7 @@ export async function updatePost(formData: FormData, post_id: number) {
       bedroom: data.bedroom,
       property_for: data.property_for,
       property_type: data.property_type,
-      slug,
+      ...slug,
       property_id,
       thana: data.thana,
       district: data.district,
@@ -370,8 +365,10 @@ export async function updatePost(formData: FormData, post_id: number) {
   if (!post) {
     return { title: ["Updating Post Failed!"] };
   }
-
-  redirect("/admin/posts/all");
+  if (user.user.role === "admin") {
+    return redirect("/admin/posts/all");
+  }
+  return redirect("/user/my-posts");
   return { title: ["Post Updated Successfully"] };
 }
 
@@ -474,6 +471,31 @@ export const deletePost = async (id: number) => {
 //   return formData;
 // };
 
+export const deactivatePostStatus = async (slug: string) => {
+  const user = await auth();
+
+  if (!user || user === null) return;
+
+  const post = await db.post.findUnique({
+    where: { slug },
+    select: { status: true, id: true, User: true },
+  });
+
+  if (!post) return;
+  if (post.status === false)
+    return { message: ["Post Deactivated Successfully"] };
+  if (post.User.id !== user.user.id) return;
+
+  await db.post.update({
+    where: { id: post.id },
+    data: {
+      status: false,
+    },
+  });
+  revalidatePath("/user/my-posts");
+
+  return { message: ["Post Deactivated Successfully"] };
+};
 export const updatePostStatus = async (
   id: number,
   status: boolean,
@@ -487,10 +509,13 @@ export const updatePostStatus = async (
 
   if (user.user.role !== "admin") return;
 
-  const post = await db.post.findUnique({ where: { id } });
+  const post = await db.post.findUnique({
+    where: { id },
+    select: { status: true },
+  });
 
   if (!post) return;
-  if (post.status === status) return;
+  if (post.status === status) return true;
 
   await db.post.update({
     where: { id },

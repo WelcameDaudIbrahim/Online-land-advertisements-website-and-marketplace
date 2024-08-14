@@ -70,17 +70,16 @@ export const signup = async (prevState: unknown, formData: FormData) => {
     data: { name, email, password: hashedPassword },
   });
 
-  sendVerification(user.email);
+  await sendVerification(user.email);
 
   try {
     await signIn("credentials", {
       email: user.email,
-      password: user.password,
+      password,
       redirectTo: DEFAULT_REDIRECT_AFTER_LOGIN,
     });
   } catch (err) {
     console.log(err);
-
     return { error: "Something Went Wrong" };
   }
 

@@ -52,11 +52,12 @@ export const updateSettings = async (
 
   const { name, email } = result.data;
 
-  if (existingUser.name === name && existingUser.email === email) {
+  if (existingUser.email === email && existingUser.name === name) {
     return {
-      error: "Something Went Wrong",
+      error: "Something Must Change",
     };
   }
+
   if (existingUser.email !== email) {
     const matchingUser = await db.user.findUnique({ where: { email } });
 
@@ -65,10 +66,18 @@ export const updateSettings = async (
         error: "This Email Already Exist In The Database",
       };
     }
+
+    await sendVerification(email);
+    await db.user.update({
+      where: { id: user?.user.id },
+      data: { name, email, emailVerified: null },
+    });
+  } else {
+    await db.user.update({
+      where: { id: user?.user.id },
+      data: { name },
+    });
   }
-
-  await db.user.update({ where: { id: user?.user.id }, data: { name, email } });
-
   return { error: "200" };
 };
 
@@ -219,7 +228,7 @@ export const sendVerification = async (email: string) => {
 
   sendVerificationMail({
     email,
-    link: `${process.env.NEXT_SITE_URL}/verification/${token.token}`,
+    link: `${process.env.NEXT_SITE_URL}/verification/${token.token}/`,
   });
 
   return true;

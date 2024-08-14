@@ -6,37 +6,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import Image from "next/image";
 import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { Search } from "lucide-react";
 import SearchBar from "../SearchBar";
-import { redirect } from "next/navigation";
 
 export default function Hero() {
   const [propertyFor, setPropertyFor] = useState<string>("rent");
   const [propertyType, setPropertyType] = useState<string>("");
   const [location, setLocation] = useState<string>("");
   return (
-    <div className="relative w-full md:h-[90vh] h-[16vh] sm:h-[20vh] flex-wrap inline-block">
+    <div className="relative w-full h-[16vh] sm:h-[20vh] md:h-[56vh] flex-wrap inline-block">
       <div className="absolute -bottom-32 right-[-50%] size-[430.34px] md:w-[730.34px] md:h-[729.48px] bg-gradient-to-br from-slate-400 via-slate-500 to-teal-800 rounded-full blur-[1200px] -z-20"></div>
       <Image
         src="/assets/home/hero.png"
         alt="Hero Image"
-        className="absolute right-0 top-0 h-full !w-[auto] -z-10"
+        className="absolute right-0 top-0 h-auto md:h-[82vh] !w-[auto] -z-10"
         width="719"
         height="700"
       />
-      <div className="ml-3.5 md:ml-20 mt-4 md:mt-24 text-2xl md:text-[64px]">
-        <h1 className="text-black  font-semibold font-roboto md:leading-[97.28px] tracking-[4.48px]">
+      <div className="ml-3.5 md:ml-16 mt-4 md:mt-16 text-2xl md:text-[48px]">
+        <h1 className="text-black  font-semibold font-roboto md:leading-[23.28px] tracking-[4.48px]">
           Your Path to the Perfect <br />
           <span className="text-primary md:text-black font-semibold font-quicksand md:leading-[97.28px] tracking-[4.48px]">
             Property
             <Image
               src={"/assets/home/line.png"}
               alt="line"
-              width="300"
+              width="240"
               height="4"
               className="-mt-4 hidden md:block "
               priority={true}
@@ -44,10 +42,6 @@ export default function Hero() {
             />
           </span>
         </h1>
-        <p className="hidden md:block text-black mt-3.5 md:mt-8 text-sm md:text-xl font-normal font-roboto md:leading-[30px] max-w-[80%] md:max-w-[658px]">
-          Find Your Perfect Place: Your Personalized Path to the Perfect
-          Property. Let Us Be Your Real Estate Compass.
-        </p>
         <div className="hidden md:flex items-center w-full justify-center mt-16 max-w-[1244px]">
           <div className="flex items-center gap-1.5 mb-2">
             <Button

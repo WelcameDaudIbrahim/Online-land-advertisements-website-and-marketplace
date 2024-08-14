@@ -146,6 +146,14 @@ export default function PostForm({
       }
       if (returnValue !== undefined) {
         for (const [_, value] of Object.entries(returnValue)) {
+          if (value[0] === "Post Created Successfully") {
+            form.reset();
+            toast({
+              title: "Post Created Successfully",
+              description:
+                "This Post Might Take Some Time To Be Approved (1-2 Days)",
+            });
+          }
           form.setError("root", { message: value.join("\n") });
         }
       }

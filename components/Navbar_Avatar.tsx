@@ -23,7 +23,7 @@ export default function Navbar_Avatar() {
       <div className="flex items-center">
         <DropdownMenu onOpenChange={(open) => setIsAvatarOpen(open)}>
           <DropdownMenuTrigger className="font-roboto text-base text-center ml-4 flex items-center gap-2">
-            <div className="flex items-center justify-center bg-primary rounded-full size-8 md:size-10">
+            <div className="flex items-center justify-center bg-primary rounded-full size-8 md:size-[41px]">
               <Avatar className="size-8 md:size-9">
                 <AvatarImage src={user.image || "/assets/profile.png"} />
                 <AvatarFallback>CN</AvatarFallback>
@@ -60,7 +60,7 @@ export default function Navbar_Avatar() {
                 My Accounts
               </DropdownMenuItem>
             </Link>
-            <Link href="/user/posts">
+            <Link href="/user/my-posts">
               <DropdownMenuItem className="cursor-pointer hover:bg-accent hover:text-black">
                 My Posts
               </DropdownMenuItem>
