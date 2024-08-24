@@ -1,5 +1,4 @@
 import db from "@/db/db";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MdVerified } from "react-icons/md";
@@ -13,6 +12,8 @@ import { TbCurrentLocation } from "react-icons/tb";
 import { FaFortAwesomeAlt } from "react-icons/fa";
 import { BsFillBuildingsFill } from "react-icons/bs";
 import Images from "./_components/Images";
+import PhoneNumber from "./_components/PhoneNumber";
+import { IMAGES_PATH_PREFIX } from "@/routes";
 
 export default async function Page({ params }: { params: { slug: string } }) {
   const { slug } = params;
@@ -58,7 +59,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
 
   return (
     <>
-      <div className="flex max-w-[1360px] mx-auto mt-6 mb-14">
+      <div className="flex max-w-[1360px] flex-col md:flex-row mx-auto mt-6 mb-14">
         <div className="flex-1">
           <div className="flex">
             <Images photo={post.photo} images={post.Images} />
@@ -125,60 +126,72 @@ export default async function Page({ params }: { params: { slug: string } }) {
           <h1 className="mt-6 mb-5 text-center text-3xl text-black font-medium tracking-normal max-w-3xl">
             Deatails
           </h1>
-          <div className="grid grid-cols-2 items-start mt-1.5 max-w-[886px]">
+          <div className="grid pl-6 md:pl-0.5 grid-cols-1 md:grid-cols-2 items-start mt-1.5 max-w-[886px]">
             <div className="flex flex-col gap-y-3.5">
               {post.bedroom && (
-                <div className="flex items-center gap-2 w-full pr-16">
+                <div className="flex items-center gap-2 w-full pr-4 md:pr-16">
                   <IoBedOutline className="text-gray-800 size-7 mr-2.5" />
-                  <p className="font-medium font-roboto text-lg">Bedroom</p>
-                  <p className="text-xl text-end font-roboto tracking-wide font-semibold ml-auto">
+                  <p className="font-medium font-roboto text-sm md:text-lg">
+                    Bedroom
+                  </p>
+                  <p className="text-base md:text-xl text-end font-roboto tracking-wide font-semibold ml-auto">
                     {post.bedroom}
                   </p>
                 </div>
               )}
               {post.bathroom && (
-                <div className="flex items-center gap-2 w-full pr-16">
+                <div className="flex items-center gap-2 w-full pr-4 md:pr-16">
                   <LuBath className="text-gray-800 size-7 mr-2.5" />
-                  <p className="font-medium font-roboto text-lg ">Bathroom </p>
-                  <p className="text-xl text-end font-roboto tracking-wide font-semibold ml-auto">
+                  <p className="font-medium font-roboto text-sm md:text-lg">
+                    Bathroom{" "}
+                  </p>
+                  <p className="text-base md:text-xl text-end font-roboto tracking-wide font-semibold ml-auto">
                     {post.bathroom}
                   </p>
                 </div>
               )}
-              <div className="flex items-center gap-2 w-full pr-16">
+              <div className="flex items-center gap-2 w-full pr-4 md:pr-16">
                 <BsFillBuildingsFill className="text-gray-800 size-7 mr-2.5" />
-                <p className="font-medium font-roboto text-lg">Location</p>
-                <p className="text-xl text-end font-roboto tracking-wide font-semibold ml-auto">
+                <p className="font-medium font-roboto text-sm md:text-lg">
+                  Location
+                </p>
+                <p className="text-base md:text-xl text-end font-roboto tracking-wide font-semibold ml-auto">
                   {post.district}
                 </p>
               </div>
-              <div className="flex items-center gap-2 w-full pr-16">
+              <div className="flex items-center gap-2 w-full pr-4 md:pr-16">
                 <PiMapPinSimpleAreaBold className="text-gray-800 size-7 mr-2.5" />
-                <p className="font-medium font-roboto text-lg">Area</p>
-                <p className="text-xl text-end font-roboto tracking-wide font-semibold ml-auto">
+                <p className="font-medium font-roboto text-sm md:text-lg">
+                  Area
+                </p>
+                <p className="text-base md:text-xl text-end font-roboto tracking-wide font-semibold ml-auto">
                   {post.area.toLocaleString()} SQFT
                 </p>
               </div>
             </div>
             <div className="flex flex-col gap-y-5">
-              <div className="flex items-center gap-2 w-full pr-16">
+              <div className="flex items-center gap-2 w-full pr-4 md:pr-16">
                 <FaFortAwesomeAlt className="text-gray-800 size-7 mr-2.5" />
-                <p className="font-medium font-roboto text-lg">Property For</p>
-                <p className="text-xl text-end font-roboto tracking-wide font-semibold ml-auto">
+                <p className="font-medium font-roboto text-sm md:text-lg">
+                  Property For
+                </p>
+                <p className="text-base md:text-xl text-end font-roboto tracking-wide font-semibold ml-auto">
                   {capitalizeFirstLetter(post.property_for)}
                 </p>
               </div>
-              <div className="flex items-center gap-2 w-full pr-16">
+              <div className="flex items-center gap-2 w-full pr-4 md:pr-16">
                 <TbCurrentLocation className="text-gray-800 size-7 mr-2.5" />
-                <p className="font-medium font-roboto text-lg">Property Type</p>
-                <p className="text-xl text-end font-roboto tracking-wide font-semibold ml-auto">
+                <p className="font-medium font-roboto text-sm md:text-lg">
+                  Property Type
+                </p>
+                <p className="text-base md:text-xl text-end font-roboto tracking-wide font-semibold ml-auto">
                   {capitalizeFirstLetter(post.property_type)}
                 </p>
               </div>
             </div>
           </div>
         </div>
-        <div className="min-w-96 flex flex-col items-center gap-4">
+        <div className="w-full mt-8 md:mt-0 md:max-w-96 flex flex-col items-center gap-4">
           <div className="border-b border-gray-600 py-1.5 text-center w-full font-roboto text-lg">
             Owners Details
           </div>
@@ -186,7 +199,13 @@ export default async function Page({ params }: { params: { slug: string } }) {
             <div className="flex items-center justify-center bg-primary rounded-full size-7 lg:size-[40.5px]">
               <Avatar className="size-6 lg:size-9">
                 <AvatarImage
-                  src={post.User.image || "https://github.com/shadcn.png"}
+                  src={
+                    post.User?.image
+                      ? post.User.image.startsWith("https://")
+                        ? post.User?.image
+                        : IMAGES_PATH_PREFIX + post.User?.image
+                      : "/assets/profile.png"
+                  }
                 />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
@@ -205,12 +224,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
             <p className="text-xl mb-2.5 text-gray-800 font-roboto text-center">
               Phone Number
             </p>
-            <h6 className="text-2xl tracking-wider font-semibold">
-              +019-242-242-4XX-XXX
-            </h6>
-            <p className="text-base text-black hover:text-primary text-center font-medium font-roboto tracking-wide leading-5 mt-1 cursor-pointer">
-              Show The Number
-            </p>
+            <PhoneNumber phoneNumber={post.phoneNumber} />
           </div>
         </div>
       </div>

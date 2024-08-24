@@ -34,11 +34,14 @@
     "@tiptap/react": "^2.5.7",
     "@tiptap/starter-kit": "^2.5.7",
     "@types/bcryptjs": "^2.4.6",
+    "@types/compression": "^1.7.5",
     "@types/nodemailer": "^6.4.15",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
+    "compression": "^1.7.4",
+    "express": "^4.19.2",
     "isomorphic-dompurify": "^2.14.0",
     "lucide-react": "^0.408.0",
     "next": "14.2.5",
@@ -48,6 +51,7 @@
     "react-dom": "^18",
     "react-hook-form": "^7.52.1",
     "react-icons": "^5.2.1",
+    "recharts": "^2.12.7",
     "sharp": "^0.33.4",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
@@ -57,6 +61,7 @@
   "devDependencies": {
     "@snaplet/copycat": "^5.0.0",
     "@snaplet/seed": "^0.98.0",
+    "@types/express": "^4.17.21",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -67,5 +72,11 @@
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed/seed.ts"
+  },
+  "@snaplet/seed": {
+    "config": "prisma\\seed\\seed.config.ts"
   }
 }

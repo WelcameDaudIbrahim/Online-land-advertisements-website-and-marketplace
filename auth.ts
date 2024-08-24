@@ -15,6 +15,20 @@ declare module "next-auth" {
 type userRole = "admin" | "user";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
+  events: {
+    async linkAccount({ user }) {
+      await db.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerified: new Date(),
+        },
+      });
+    },
+  },
+  pages: {
+    signIn: "/log-in",
+    error: "/log-in",
+  },
   callbacks: {
     session({ session, token }) {
       if (session.user && token.sub) {

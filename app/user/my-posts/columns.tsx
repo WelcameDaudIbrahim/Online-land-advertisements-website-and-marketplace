@@ -1,6 +1,9 @@
 "use client";
 
-import { deactivatePostStatus } from "@/actions/post.action";
+import {
+  changePendingStatus,
+  deactivatePostStatus,
+} from "@/actions/post.action";
 import { Alert } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/use-toast";
+import { IMAGES_PATH_PREFIX } from "@/routes";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import Image from "next/image";
@@ -26,6 +30,7 @@ export type Post = {
   property_for: "sale" | "rent";
   property_type: "residential" | "commercial";
   status: boolean;
+  pending: boolean;
 };
 export const columns: ColumnDef<Post>[] = [
   {
@@ -67,7 +72,7 @@ export const columns: ColumnDef<Post>[] = [
       return (
         <div>
           <Image
-            src={row.getValue("photo")}
+            src={IMAGES_PATH_PREFIX + row.getValue("photo")}
             width={100}
             height={100}
             className="object-contain"
@@ -105,7 +110,12 @@ export const columns: ColumnDef<Post>[] = [
       return (
         <div>
           {status === false ? (
-            <p className="font-medium text-red-600">Inactive</p>
+            <div className="font-medium text-red-600">
+              Inactive
+              <p className={`text-primary`}>
+                ( {!row.original.pending && "Not "}Requested for Approval )
+              </p>
+            </div>
           ) : (
             <p className="font-medium text-green-600">Active</p>
           )}
@@ -140,28 +150,84 @@ export default function MoreColumns({ row }: { row: Row<Post> }) {
           </DropdownMenuItem>
         </Link>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="hover:bg-red-800 hover:text-white cursor-pointer"
-          asChild
-        >
-          <Alert
-            description="Are you sure you want to deactivate this post?"
-            onContinue={async () => {
-              const returnValue = await deactivatePostStatus(row.original.slug);
-              if (returnValue) {
-                toast({
-                  title: returnValue.message[0] || "Something Went Wrong",
-                  description: "This will reflect to everybody",
-                });
-              }
-            }}
-            buttonText="Deactive"
+        {row.original.status ? (
+          <DropdownMenuItem
+            className="hover:bg-red-800 hover:text-white cursor-pointer"
+            asChild
           >
-            <p className="relative flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-accent hover:bg-red-800 hover:text-white cursor-pointer">
-              Deactive
-            </p>
-          </Alert>
-        </DropdownMenuItem>
+            <Alert
+              description="Are you sure you want to deactivate this post?"
+              onContinue={async () => {
+                const returnValue = await deactivatePostStatus(
+                  row.original.slug
+                );
+                if (returnValue) {
+                  toast({
+                    title: returnValue.message[0] || "Something Went Wrong",
+                    description: "This will reflect to everybody",
+                  });
+                }
+              }}
+              buttonText="Deactive"
+            >
+              <p className="relative flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-accent hover:bg-red-800 hover:text-white cursor-pointer">
+                Deactive
+              </p>
+            </Alert>
+          </DropdownMenuItem>
+        ) : row.original.pending ? (
+          <DropdownMenuItem
+            className="hover:bg-red-600 hover:text-white cursor-pointer"
+            asChild
+          >
+            <Alert
+              description="Are you sure you want to cancel the request to approve this post?"
+              onContinue={async () => {
+                const returnValue = await changePendingStatus(
+                  row.original.slug,
+                  false
+                );
+                if (returnValue) {
+                  toast({
+                    title: returnValue.message[0] || "Something Went Wrong",
+                    description: "Request Canceled Successfully",
+                  });
+                }
+              }}
+              buttonText="Cancel"
+            >
+              <p className="relative flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-accent hover:bg-red-800 hover:text-white cursor-pointer">
+                Cancel The Approval Request
+              </p>
+            </Alert>
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem
+            className="hover:bg-green-600 hover:text-white cursor-pointer"
+            asChild
+          >
+            <Alert
+              description="Are you sure you want to request to approve this post?"
+              onContinue={async () => {
+                const returnValue = await changePendingStatus(
+                  row.original.slug,
+                  true
+                );
+                if (returnValue) {
+                  toast({
+                    title: returnValue.message[0] || "Something Went Wrong",
+                    description: "Request has Sent. It May Take Some Time",
+                  });
+                }
+              }}
+              buttonText="Sent Request"
+            >
+              <p className="relative flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-accent hover:bg-green-800 hover:text-white cursor-pointer">
+                Request For Active This Post
+              </p>
+            </Alert>
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

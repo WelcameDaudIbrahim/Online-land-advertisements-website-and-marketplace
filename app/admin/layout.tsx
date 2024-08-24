@@ -13,6 +13,7 @@ export default function RootLayout({
   const toggle = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
   return (
     <AdminGate>
       <div className="w-full flex flex-col">

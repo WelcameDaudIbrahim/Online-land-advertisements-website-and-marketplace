@@ -228,7 +228,7 @@ export const sendVerification = async (email: string) => {
 
   await sendVerificationMail({
     email,
-    link: `${process.env.NEXT_SITE_URL}/verification/${token.token}/`,
+    link: `${process.env.NEXT_PUBLIC_SITE_URL}/verification/${token.token}/`,
   });
 
   return true;

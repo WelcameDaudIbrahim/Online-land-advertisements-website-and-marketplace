@@ -67,7 +67,7 @@ enum PropertyType {
 model Image {
   id         Int      @id @default(autoincrement())
   image      String
-  post       Post     @relation(fields: [postId], references: [id])
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   postId     Int
@@ -87,9 +87,11 @@ model Post {
   division      String
   location      String
   photo         String
+  phoneNumber   String
   Images        Image[]
   property_for  PropertyFor
   property_type PropertyType
+  pending       Boolean      @default(true)
   User          User         @relation(fields: [userId], references: [id])
   userId        String
   status        Boolean      @default(false)
@@ -103,8 +105,9 @@ model DeletedPost {
   property_id   String       @unique
   slug          String       @unique
   title         String       @db.VarChar(256)
-  description   String       @db.VarChar(5000)
+  description   String       @db.VarChar(1500)
   area          Int
+  photo         String       @default("/assets/no-image.jpg")
   bedroom       Int?
   bathroom      Int?
   thana         String
@@ -113,10 +116,12 @@ model DeletedPost {
   location      String
   property_for  PropertyFor
   property_type PropertyType
+  pending       Boolean
+  phoneNumber   String
   // User Details
   userId        String
   name          String?
-  email         String       @unique
+  email         String
   emailVerified DateTime?
   // User Details Ends
   status        Boolean      @default(false)
@@ -135,4 +140,56 @@ model VerificationToken {
   updated_at DateTime @updatedAt
 
   @@unique([email, token])
+}
+
+model ResetPasswordToken {
+  id         Int      @id @default(autoincrement())
+  email      String
+  user_id    String
+  token      String   @unique
+  expires    DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([email, token])
+}
+
+model UserInfo {
+  id     Int    @id @default(autoincrement())
+  status String @default("fail")
+
+  ip                  String?
+  ipv4                String?
+  ipv6                String?
+  screen              String?
+  browser             String?
+  browserVersion      String?
+  browserMajorVersion Int?
+  mobile              Boolean?
+  url                 String?
+  os                  String?
+  osVersion           String?
+  cookies             Boolean?
+
+  continent   String?
+  country     String?
+  countryCode String?
+  region      String?
+  regionName  String?
+  city        String?
+  zip         String?
+  district    String?
+  lat         Float?
+  lon         Float?
+  timezone    String?
+  isp         String?
+  org         String?
+  as          String?
+  proxy       Boolean?
+  query       String?
+
+  userId     DateTime?
+  logged_in  DateTime?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
 }

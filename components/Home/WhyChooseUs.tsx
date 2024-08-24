@@ -1,10 +1,11 @@
 import { CalendarCheck2, ChevronRight } from "lucide-react";
-import React from "react";
+import React, { Suspense } from "react";
 import { Button } from "../ui/button";
+import Track from "../track/Track";
 
 export default function WhyChooseUs() {
   return (
-    <div className="px-1.5 md:px-16 pt-4 md:pt-8 pb-4 flex items-center flex-col">
+    <div className="px-1.5 md:px-16 pt-[7.5rem] sm:pt-10 md:pt-8 pb-4 flex items-center flex-col">
       <h2 className="text-black text-base sm:text-xl md:text-[40px] font-bold font-roboto md:leading-[24px] text-center mb-1 md:mb-10">
         Why Choose Us?
       </h2>
@@ -62,6 +63,9 @@ export default function WhyChooseUs() {
           </Button>
         </div>
       </div>
+      <Suspense fallback={<></>}>
+        <Track />
+      </Suspense>
     </div>
   );
 }

@@ -1,10 +1,12 @@
-import { Links, sidebarLink } from "@/types/types";
+import { FcStatistics } from "react-icons/fc";
+import { sidebarLink } from "@/types/types";
 import { FaHome, FaUsers } from "react-icons/fa";
 import { FaSignsPost } from "react-icons/fa6";
+import { TbGitBranchDeleted } from "react-icons/tb";
 
 export const sidebar_links: sidebarLink[] = [
   {
-    name: "Home",
+    name: "Dashboard",
     href: "/admin/dashboard",
     icon: FaHome,
   },
@@ -25,6 +27,16 @@ export const sidebar_links: sidebarLink[] = [
       { name: "All Users", href: "/admin/users/all" },
       { name: "Create User", href: "/admin/users/create" },
     ],
+  },
+  {
+    name: "Deleted Posts",
+    href: "/admin/posts/all?trash=true",
+    icon: TbGitBranchDeleted,
+  },
+  {
+    name: "Visitor Statistics",
+    href: "/admin/statistics/visitor",
+    icon: FcStatistics,
   },
   // {
   //   name: "Users",

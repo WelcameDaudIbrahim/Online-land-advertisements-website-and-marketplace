@@ -37,7 +37,7 @@ export default async function page({ params }: { params: { token: string } }) {
   return (
     <h1 className="text-primary-500 text-center m-auto mt-32 text-3xl font-roboto font-medium tracking-wide">
       Email Verified Succeessfully{" "}
-      <button className="text-secondary" onClick={redirect("/")}>
+      <button className="text-secondary" onClick={redirect("/reload")}>
         Reload
       </button>
     </h1>

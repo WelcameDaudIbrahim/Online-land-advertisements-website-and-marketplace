@@ -31,6 +31,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
       title: true,
       photo: true,
       description: true,
+      phoneNumber: true,
       area: true,
       bedroom: true,
       bathroom: true,

@@ -77,7 +77,7 @@ export default function Navbar() {
               />
             </Link>
           </div>
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-8">
             {navbarLinks.map((link) => (
               <Link
                 href={link.href}
@@ -119,7 +119,7 @@ export default function Navbar() {
           </DropdownMenu> */}
           <Link href="/user/post/create">
             <Button className="relative ml-0 md:ml-8 px-2.5 md:px-4 py-0 h-[34.6px] md:h-auto md:py-2.5 bg-secondary rounded-sm justify-center items-center border-none hover-none drop-shadow-[2px_2px_0px_rgba(0,0,0,0.55))] text-zinc-100 text-xs md:text-base font-medium font-roboto leading-3 md:leading-normal tracking-tight">
-              <span className="absolute top-[-12%] right-[-15%] text-white bg-primary border border-primary-dark text-xs px-1 py-0.5 rounded-sm">
+              <span className="absolute top-[-24%] md:top-[-12%] left-[-15%] md:left-auto right-auto md:right-[-15%] text-white bg-primary border border-primary-dark text-[8px] md:text-xs px-1 py-0.5 rounded-sm">
                 Free
               </span>
               Post Property

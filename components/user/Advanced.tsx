@@ -18,12 +18,17 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PiEyeClosedThin, PiEyeThin } from "react-icons/pi";
 import { Input } from "../ui/input";
+import { IMAGES_PATH_PREFIX } from "@/routes";
 
 export function AvatarChange() {
   const user = useAuth();
 
   const [avatarSrc, setAvatarSrc] = useState(
-    user?.image || "/assets/profile.png"
+    user?.image
+      ? user.image.startsWith("https://")
+        ? user?.image
+        : IMAGES_PATH_PREFIX + user?.image
+      : "/assets/profile.png"
   );
   const [state, action] = useFormState(changeAvatar, null);
 
@@ -34,7 +39,9 @@ export function AvatarChange() {
 
   if (state?.avatar) {
     if (state?.avatar[0] === "200") {
-      window.location.reload();
+      if (typeof window !== "undefined") {
+        window.location.reload();
+      }
     }
   }
 
@@ -162,7 +169,7 @@ export function PasswordChange() {
   return (
     <div className="mt-6">
       <h2 className="text-black text-2xl font-medium tracking-wider font-roboto">
-        Chnage Password
+        Change Password
       </h2>
       <Form {...form}>
         <form
@@ -174,7 +181,14 @@ export function PasswordChange() {
             name="currentPassword"
             render={({ field }) => (
               <FormItem className="mt-2.5">
-                <FormLabel>Current Password</FormLabel>
+                <FormLabel
+                  className={`${
+                    form.formState.errors.currentPassword?.message ===
+                      "Password Changed Successfully" && "text-green-600"
+                  }`}
+                >
+                  Current Password
+                </FormLabel>
                 <FormControl>
                   <div className="relative w-full m-0 mt-2.5 p-0">
                     <Input
@@ -197,7 +211,12 @@ export function PasswordChange() {
                     </div>
                   </div>
                 </FormControl>
-                <FormMessage />
+                <FormMessage
+                  className={`${
+                    form.formState.errors.currentPassword?.message ===
+                      "Password Changed Successfully" && "text-green-600"
+                  }`}
+                />
               </FormItem>
             )}
           />

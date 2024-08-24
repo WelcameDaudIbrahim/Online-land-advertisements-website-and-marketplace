@@ -12,19 +12,24 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/use-toast";
+import { UpdateQuery } from "@/lib/utils";
+import { IMAGES_PATH_PREFIX } from "@/routes";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export type Post = {
   id: number;
+  userId: string;
   property_id: string;
   title: string;
   area: number;
   photo: string;
   property_for: "sale" | "rent";
   property_type: "residential" | "commercial";
+  pending: boolean;
   status: boolean;
   created_at: Date;
   updated_at: Date;
@@ -73,7 +78,7 @@ export const columns: ColumnDef<Post>[] = [
       return (
         <div>
           <Image
-            src={row.getValue("photo")}
+            src={IMAGES_PATH_PREFIX + row.getValue("photo")}
             width={100}
             height={100}
             className="object-contain"
@@ -115,6 +120,7 @@ export const columns: ColumnDef<Post>[] = [
           ) : (
             <p className="font-medium text-green-600">Active</p>
           )}
+          <p>{!row.original.pending && "Not"} Requested For Approval</p>
         </div>
       );
     },
@@ -143,6 +149,9 @@ export const columns: ColumnDef<Post>[] = [
 ];
 
 export default function MoreColumns({ row }: { row: Row<Post> }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const id = row.getValue("id");
   const status = row.getValue("status");
   return (
@@ -182,6 +191,17 @@ export default function MoreColumns({ row }: { row: Row<Post> }) {
             </p>
           </Alert>
         </DropdownMenuItem>
+        <Link
+          href={UpdateQuery(
+            [{ field: "userId", value: row.original.userId }],
+            searchParams,
+            pathname
+          )}
+        >
+          <DropdownMenuItem className="hover:bg-accent cursor-pointer">
+            More Posts From User
+          </DropdownMenuItem>
+        </Link>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="hover:bg-red-800 hover:text-white cursor-pointer"

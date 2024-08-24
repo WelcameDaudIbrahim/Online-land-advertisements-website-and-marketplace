@@ -1,8 +1,17 @@
+"use client";
 import * as React from "react";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-import { cn } from "@/lib/utils";
+import { cn, range, UpdateQuery } from "@/lib/utils";
 import { ButtonProps, buttonVariants } from "@/components/ui/button";
+import { redirect, usePathname, useSearchParams } from "next/navigation";
 
 const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
   <nav
@@ -108,70 +117,164 @@ PaginationEllipsis.displayName = "PaginationEllipsis";
 const FullPagination = ({
   currentPage,
   totalPages,
-  onPageChange,
+  take,
+  showNumbers = true,
 }: {
   currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
+  totalPages?: number;
+  take?: number;
+  showNumbers?: boolean;
 }) => {
+  currentPage =
+    currentPage > Math.floor(currentPage) && currentPage < currentPage + 1
+      ? Math.floor(currentPage + 1)
+      : currentPage;
+  totalPages =
+    totalPages !== undefined
+      ? totalPages > Math.floor(totalPages) && totalPages < totalPages + 1
+        ? Math.floor(totalPages + 1)
+        : totalPages
+      : undefined;
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const pageNumbers = [];
-
-  if (totalPages <= 5) {
-    // Show all pages if there are 5 or fewer
-    for (let i = 1; i <= totalPages; i++) {
-      pageNumbers.push(i);
-    }
-  } else {
-    // Show first page, current page, and last page with ellipses
-    if (currentPage > 2) {
-      pageNumbers.push(1);
-      if (currentPage > 3) {
-        pageNumbers.push("...");
+  if (totalPages !== undefined) {
+    if (totalPages <= 5) {
+      // Show all pages if there are 5 or fewer
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
       }
-    }
-
-    if (currentPage === 1) {
-      pageNumbers.push(1, 2, 3);
-    } else if (currentPage === totalPages) {
-      pageNumbers.push(totalPages - 2, totalPages - 1, totalPages);
     } else {
-      pageNumbers.push(currentPage - 1, currentPage, currentPage + 1);
-    }
-
-    if (currentPage < totalPages - 1) {
-      if (currentPage < totalPages - 2) {
-        pageNumbers.push("...");
+      // Show first page, current page, and last page with ellipses
+      if (currentPage > 2) {
+        pageNumbers.push(1);
+        if (currentPage > 3) {
+          pageNumbers.push("...");
+        }
       }
-      pageNumbers.push(totalPages);
+
+      if (currentPage === 1) {
+        pageNumbers.push(1, 2, 3);
+      } else if (currentPage === totalPages) {
+        pageNumbers.push(totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pageNumbers.push(currentPage - 1, currentPage, currentPage + 1);
+      }
+
+      if (currentPage < totalPages - 1) {
+        if (currentPage < totalPages - 2) {
+          pageNumbers.push("...");
+        }
+        pageNumbers.push(totalPages);
+      }
     }
   }
-
   return (
     <div className="w-full flex px-2.5 py-1.5 items-center justify-end mt-2.5 mb-6 pr-6">
-      <Pagination className="justify-end">
+      {take && (
+        <div className="flex items-center">
+          <p
+            className={`text-sm font-medium mr-1.5 ${
+              totalPages === undefined ||
+              (totalPages <= 1 && "pointer-events-none opacity-50")
+            }`}
+          >
+            Row Per Page
+          </p>
+          <Select
+            disabled={totalPages === undefined || totalPages <= 1}
+            value={take.toString()}
+            onValueChange={(val) => {
+              if (typeof window !== "undefined") {
+                window.location.replace(
+                  UpdateQuery(
+                    [{ field: "take", value: val }],
+                    searchParams,
+                    pathname
+                  )
+                );
+              }
+            }}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Row Per Page" />
+            </SelectTrigger>
+            <SelectContent>
+              {range(10, 100, 10).map((value) => (
+                <SelectItem
+                  className="cursor-pointer"
+                  value={value.toString()}
+                  key={value}
+                >
+                  {value}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+      <p
+        className={`text-sm font-medium mx-3.5 ${
+          totalPages === undefined ||
+          (totalPages <= 1 && "pointer-events-none opacity-50")
+        }`}
+      >
+        Page {currentPage} {showNumbers && `of ${totalPages}`}
+      </p>
+      <Pagination className="justify-end max-w-fit mx-1.5">
         <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious href="/f" />
+          <PaginationItem
+            className={`${
+              currentPage === 1 && "pointer-events-none opacity-50 bg-accent"
+            }`}
+          >
+            <PaginationPrevious
+              href={UpdateQuery(
+                [{ field: "page", value: (currentPage - 1).toString() }],
+                searchParams,
+                pathname
+              )}
+            />
           </PaginationItem>
-          {pageNumbers.map((number, index) =>
-            number === "..." ? (
-              <PaginationItem key={index}>
-                <PaginationEllipsis />
-              </PaginationItem>
-            ) : (
-              <PaginationItem
-                key={number}
-                className={currentPage === number ? "bg-accent" : ""}
-              >
-                <PaginationLink href="#">{number}</PaginationLink>
-              </PaginationItem>
-            )
-          )}
 
-          <PaginationItem>
+          {showNumbers &&
+            pageNumbers.map((number, index) =>
+              number === "..." ? (
+                <PaginationItem key={index}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem
+                  key={number}
+                  className={currentPage === number ? "bg-accent" : ""}
+                >
+                  <PaginationLink
+                    href={UpdateQuery(
+                      [{ field: "page", value: number.toString() }],
+                      searchParams,
+                      pathname
+                    )}
+                  >
+                    {number}
+                  </PaginationLink>
+                </PaginationItem>
+              )
+            )}
+
+          <PaginationItem
+            className={`${
+              ((totalPages !== undefined && currentPage >= totalPages) ||
+                (totalPages !== undefined && totalPages <= 1)) &&
+              "pointer-events-none opacity-50 bg-accent"
+            }`}
+          >
             <PaginationNext
-              href="#"
-              onClick={() => onPageChange(currentPage + 1)}
+              href={UpdateQuery(
+                [{ field: "page", value: (currentPage + 1).toString() }],
+                searchParams,
+                pathname
+              )}
             />
           </PaginationItem>
         </PaginationContent>

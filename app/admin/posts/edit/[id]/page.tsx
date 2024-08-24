@@ -1,19 +1,13 @@
-import {
-  AdminButton,
-  AdminBox,
-  AdminHeader,
-} from "@/components/admin/layout/Utils";
+import { AdminBox, AdminHeader } from "@/components/admin/layout/Utils";
 import React from "react";
 import PostForm from "@/components/posts/PostForm";
 import { notFound } from "next/navigation";
 import db from "@/db/db";
 import { createFile } from "@/lib/utils";
 import { headers } from "next/headers";
+import AdminBackButton from "@/app/admin/_components/AdminBackButton";
 
 export default async function Page({ params }: { params: { id: string } }) {
-  const headersList = headers();
-  const domain = headersList.get("host") || "";
-
   const { id } = params;
 
   if (!id) return notFound();
@@ -32,6 +26,7 @@ export default async function Page({ params }: { params: { id: string } }) {
       title: true,
       photo: true,
       description: true,
+      phoneNumber: true,
       area: true,
       bedroom: true,
       bathroom: true,
@@ -61,7 +56,7 @@ export default async function Page({ params }: { params: { id: string } }) {
     <div className="px-3.5">
       <div className="flex items-center w-full justify-between py-2.5 mt-2.5 mb-4">
         <AdminHeader>Edit Post</AdminHeader>
-        <AdminButton>Back</AdminButton>
+        <AdminBackButton />
       </div>
       <AdminBox>
         <PostForm id={post_id} postData={{ ...newPost, images: Images }} />

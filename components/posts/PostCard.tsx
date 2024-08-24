@@ -1,12 +1,14 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { IoBedOutline } from "react-icons/io5";
 import { GrMapLocation } from "react-icons/gr";
 import { LuBath } from "react-icons/lu";
 import { PiMapPinSimpleAreaBold } from "react-icons/pi";
 import { PostCardType } from "./Posts";
 import { capitalizeFirstLetter, timeAgo } from "@/lib/utils";
+import { IMAGES_PATH_PREFIX } from "@/routes";
 
 export default function PostCard({
   post,
@@ -15,17 +17,28 @@ export default function PostCard({
   post: PostCardType;
   vertical: boolean;
 }) {
+  const [isVertical, setIsVertical] = useState(vertical);
+  const [updatedTime, setUpdatedTime] = useState("");
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (window.innerWidth <= 768) setIsVertical(true);
+    }
+    setUpdatedTime(timeAgo(post.updated_at));
+  }, []);
   return (
     <div
-      className={`rounded-md mx-auto my-auto border border-stone-200 flex items-center gap-2 bg-[#f8f8f8] shadow hover:shadow-md ${
-        vertical &&
-        "flex-col !items-start w-full max-w-full sm:max-w-[300px] px-4 sm:px-0"
+      className={`rounded-md mx-auto my-auto border w-full border-stone-200 flex items-center gap-2 bg-[#f8f8f8] shadow hover:shadow-md ${
+        isVertical &&
+        "flex-col !items-start max-w-full sm:max-w-[300px] px-0 sm:px-0 h-full"
       }`}
     >
-      <Link href={`/post/${post.slug}`}>
-        <div className=" max-h-auto flex items-start justify-center w-auto relative">
+      <Link
+        href={`/post/${post.slug}`}
+        className={!isVertical ? `w-fit h-[210px]` : `w-full`}
+      >
+        <div className="flex items-start justify-center h-full mx-auto md:m-0 relative w-full">
           <div
-            className={`px-4 py-1.5 absolute left-0 md:-left-4 rounded-md md:rounded-sm rounded-r-none md:bg-opacity-95 opacity-65 rounded-bl-none md:rounded-tl-none top-0 md:top-6 ${
+            className={`px-4 py-1.5 absolute left-0 md:-left-4 rounded-md md:rounded-sm rounded-r-noneopacity-65 md:bg-opacity-90 rounded-bl-none md:rounded-tl-none top-0 md:top-6 ${
               post.property_for === "rent" ? "bg-red-600" : "bg-primary"
             }`}
           >
@@ -34,15 +47,23 @@ export default function PostCard({
             </p>
           </div>
           <Image
-            src={post.photo}
+            src={IMAGES_PATH_PREFIX + post.photo}
             width={300}
             height={300}
             alt="Logo"
-            className="rounded-md sm:m-0 !w-100% !h-[300px] rounded-b-none object-contain"
+            className={`rounded-md sm:m-0  rounded-b-none object-cover ${
+              !isVertical
+                ? "rounded-r-none rounded-l-md onject-cover !h-full !min-w-[380px] !max-w-[380px]"
+                : "!w-full !h-[200px]"
+            }`}
           />
         </div>
       </Link>
-      <div className={`${vertical && "flex-col w-full"}`}>
+      <div
+        className={`${
+          isVertical ? "flex-col" : "py-2.5 flex-col"
+        } h-full flex justify-around w-full`}
+      >
         <div className="px-4 w-full">
           <Link href={`/post/${post.slug}`}>
             <p className="text-gray-700 hover:text-gray-900 text-sm font-medium font-roboto leading-[18px] tracking-normal">
@@ -104,9 +125,9 @@ export default function PostCard({
             </p>
           </div>
         </div>
-        <div className="flex items-center justify-end px-4 pt-3.5 pb-1.5 w-full">
-          <p className="text-gray-600 font-roboto text-base text-end">
-            {timeAgo(post.updated_at)} Ago
+        <div className="flex items-center justify-end px-4 pt-4 pb-2.5 w-full">
+          <p className="text-gray-600 font-roboto text-sm text-end">
+            {updatedTime} Ago
           </p>
         </div>
       </div>

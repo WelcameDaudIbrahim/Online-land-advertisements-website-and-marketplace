@@ -1,5 +1,6 @@
 "use client";
 import { signup } from "@/actions/auth.action";
+import Track from "@/components/track/Track";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,13 +17,14 @@ import { signUpSchema } from "@/zodSchema/authSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { useFormState } from "react-dom";
 import { useForm } from "react-hook-form";
 import { FaGoogle } from "react-icons/fa";
 import { FaFacebookF } from "react-icons/fa6";
 import { PiEyeClosedThin, PiEyeThin } from "react-icons/pi";
 import { z } from "zod";
+import Social from "../_components/Social";
 
 export default function Page() {
   const [state, action] = useFormState(signup, null);
@@ -37,7 +39,9 @@ export default function Page() {
     useState(false);
 
   if (state && state.error === "200") {
-    window.location.reload();
+    if (typeof window !== "undefined") {
+      window.location.reload();
+    }
   }
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -49,29 +53,30 @@ export default function Page() {
         src="/assets/signup.png"
         width={1400}
         height={1000}
+        quality={40}
         alt="Sign Up Image"
         className="w-full h-auto -z-20 object-contain absolute overflow-hidden"
+        priority
       />
+
+      <Track />
+
       <div className="absolute w-full h-[100vh] top-0 left-0 m-0 p-0 bg-[#12664FCC] -z-10"></div>
-      <div className="flex flex-col max-h-[919px] relative w-[60%] px-16 justify-center bg-white max-w-[600px] rounded shadow">
-        <Image
-          src="/assets/logo.png"
-          width={120}
-          height={33}
-          alt="logo"
-          className="mx-auto pt-4 pb-5"
-        />
+      <div className="flex flex-col max-h-[919px]  h-full w-full md:h-auto relative md:w-[60%] px-4 md:px-16 justify-center bg-white max-w-[600px] rounded shadow">
+        <Link href="/">
+          <Image
+            src="/assets/logo.png"
+            width={120}
+            height={33}
+            alt="logo"
+            className="mx-auto pt-4 pb-5 hidden md:block"
+          />
+        </Link>
         <div className="flex items-center gap-2 flex-col my-auto max-w-[432px] md:min-w-[432px] mx-auto">
           <h1 className="mb-1 text-center text-primary text-5xl font-bold font-roboto leading-[57.60px]">
             Sign Up
           </h1>
-          <Button className="rounded-none w-full text-base font-normal font-roboto text-red-500 hover:bg-red-500 hover:text-white bg-transparent border-2 border-red-500 leading-normal active:bg-red-600">
-            <FaGoogle className="mr-1.5 size-4" />
-            Sign Up with Google
-          </Button>
-          <Button className="rounded-none w-full text-base font-normal font-roboto text-indigo-700 hover:bg-indigo-700 hover:text-white bg-transparent border-2 border-indigo-700 leading-normal active:bg-indigo-800">
-            <FaFacebookF className="mr-1.5 size-4" /> Sign Up with Facebook
-          </Button>
+          <Social text="Sign up" />
           {state && state.error && (
             <p className="text-red-600 text-lg font-medium tracking-wide font-roboto">
               {state.error}
@@ -210,6 +215,9 @@ export default function Page() {
           {COPYRIGHT_TEXT}
         </div>
       </div>
+      <Suspense fallback={<></>}>
+        <Track />
+      </Suspense>
     </div>
   );
 }

@@ -38,8 +38,8 @@ export async function createPost(formData: FormData) {
   const data = result.data;
 
   let slug = data.title
-    .replaceAll(/[!@#$%^&*()+=[\]{};:'"<>,.?|\\`~ ]/g, "_")
-    .toLocaleLowerCase();
+    .replaceAll(/[!@#$%^&*()+=[\]{};:'"<>/,.?|\\`~ ]/g, "_")
+    .toLowerCase();
 
   const isPostExist = await post_exists({ where: { slug } });
 
@@ -78,6 +78,7 @@ export async function createPost(formData: FormData) {
 
   const imageBuffer = Buffer.from(await data.image.arrayBuffer());
   const imageFilename = Date.now() + data.image.name.replaceAll(" ", "_");
+  console.log(data.image);
 
   const compressImage = await compress(
     sharp(imageBuffer),
@@ -97,7 +98,6 @@ export async function createPost(formData: FormData) {
     console.log(error);
     return { title: ["Something Went Wrong!"] };
   }
-
   const post = await db.post.create({
     data: {
       title: data.title,
@@ -107,6 +107,10 @@ export async function createPost(formData: FormData) {
       bedroom: data.bedroom,
       property_for: data.property_for,
       property_type: data.property_type,
+      phoneNumber: data.phoneNumber
+        .toLowerCase()
+        .replaceAll(/[^0-9.]/g, "")
+        .replace("e", ""),
       slug,
       property_id,
       thana: data.thana,
@@ -201,8 +205,8 @@ export async function updatePost(formData: FormData, post_id: number) {
     data.title !== existPost.title
       ? {
           slug: data.title
-            .replaceAll(/[!@#$%^&*()+=[\]{};:'"<>,.?|\\`~ ]/g, "_")
-            .toLocaleLowerCase(),
+            .replaceAll(/[!@#$%^&*()+=[\]{};:'"<>/,.?|\\`~ ]/g, "_")
+            .toLowerCase(),
         }
       : {};
 
@@ -277,6 +281,10 @@ export async function updatePost(formData: FormData, post_id: number) {
       bedroom: data.bedroom,
       property_for: data.property_for,
       property_type: data.property_type,
+      phoneNumber: data.phoneNumber
+        .toLowerCase()
+        .replaceAll(/[^0-9.]/g, "")
+        .replace("e", ""),
       ...slug,
       property_id,
       thana: data.thana,
@@ -375,21 +383,207 @@ export async function updatePost(formData: FormData, post_id: number) {
   return { title: ["Post Updated Successfully"] };
 }
 
-export const getPosts = async () => {
-  const posts = await db.post.findMany({
-    select: {
-      id: true,
-      title: true,
-      photo: true,
-      area: true,
-      property_for: true,
-      property_type: true,
-      property_id: true,
-      status: true,
-      created_at: true,
-      updated_at: true,
-    },
-  });
+export const getPosts = async ({
+  deletedPost,
+  propertyType,
+  propertyFor,
+  minAreaNumber,
+  maxAreaNumber,
+  bedroomNumber,
+  bathroomNumber,
+  page,
+  take,
+  search,
+  user_id,
+}: {
+  deletedPost: boolean;
+  propertyType?: $Enums.PropertyType | undefined;
+  propertyFor?: $Enums.PropertyFor | undefined;
+  minAreaNumber?: number;
+  maxAreaNumber?: number;
+  bedroomNumber?: number;
+  bathroomNumber?: number;
+  page?: number;
+  take?: number;
+  search?: string;
+  user_id?: string | undefined;
+}) => {
+  if (deletedPost === undefined) {
+    deletedPost = false;
+  }
+
+  if (page === undefined) {
+    page = 1;
+  }
+
+  if (take === undefined) {
+    take = 10;
+  }
+
+  if (search === undefined) {
+    search = "";
+  }
+
+  const pagination_query = { take: take, skip: page * take - take };
+
+  let property_type = {};
+  if (propertyType) property_type = { property_type: propertyType };
+
+  let property_for = {};
+  if (propertyFor) property_for = { property_for: propertyFor };
+
+  let minArea = {};
+  if (!!minAreaNumber) minArea = { gte: minAreaNumber };
+
+  let maxArea = {};
+  if (!!maxAreaNumber) maxArea = { lte: maxAreaNumber };
+
+  let bedroom = {};
+  if (!!bedroomNumber) bedroom = { bedroom: bedroomNumber };
+
+  let bathroom = {};
+  if (!!bathroomNumber) bathroom = { bathroom: bathroomNumber };
+
+  let userId = {};
+  if (!!user_id) userId = { User: { id: user_id } };
+
+  const query = { take: take, skip: page * take - take };
+  const posts = !deletedPost
+    ? await db.post.findMany({
+        where: {
+          ...userId,
+          OR: [
+            {
+              id: {
+                equals: Number(search.replace(/\s+/g, " ")) || 0,
+              },
+            },
+            {
+              property_id: {
+                contains: search.replace(/\s+/g, " "),
+                mode: "insensitive",
+              },
+            },
+            {
+              title: {
+                contains: search.replace(/\s+/g, " "),
+                mode: "insensitive",
+              },
+            },
+            {
+              thana: {
+                contains: search.replace(/\s+/g, " "),
+                mode: "insensitive",
+              },
+            },
+            {
+              location: {
+                contains: search.replace(/\s+/g, " "),
+                mode: "insensitive",
+              },
+            },
+            {
+              division: {
+                contains: search.replace(/\s+/g, " "),
+                mode: "insensitive",
+              },
+            },
+            {
+              district: {
+                contains: search.replace(/\s+/g, " "),
+                mode: "insensitive",
+              },
+            },
+          ],
+          ...property_type,
+          ...property_for,
+          area: { ...minArea, ...maxArea },
+          ...bathroom,
+          ...bedroom,
+        },
+        ...pagination_query,
+        select: {
+          id: true,
+          title: true,
+          photo: true,
+          area: true,
+          property_for: true,
+          property_type: true,
+          property_id: true,
+          pending: true,
+          status: true,
+          created_at: true,
+          updated_at: true,
+          userId: true,
+        },
+        ...query,
+      })
+    : await db.deletedPost.findMany({
+        where: {
+          OR: [
+            {
+              id: {
+                equals: Number(search.replace(/\s+/g, " ")),
+              },
+            },
+            {
+              property_id: {
+                contains: search.replace(/\s+/g, " "),
+                mode: "insensitive",
+              },
+            },
+            {
+              title: {
+                contains: search.replace(/\s+/g, " "),
+                mode: "insensitive",
+              },
+            },
+            {
+              thana: {
+                contains: search.replace(/\s+/g, " "),
+                mode: "insensitive",
+              },
+            },
+            {
+              location: {
+                contains: search.replace(/\s+/g, " "),
+                mode: "insensitive",
+              },
+            },
+            {
+              division: {
+                contains: search.replace(/\s+/g, " "),
+                mode: "insensitive",
+              },
+            },
+            {
+              district: {
+                contains: search.replace(/\s+/g, " "),
+                mode: "insensitive",
+              },
+            },
+          ],
+          ...property_type,
+          ...property_for,
+          area: { ...minArea, ...maxArea },
+          ...bathroom,
+          ...bedroom,
+        },
+        select: {
+          id: true,
+          title: true,
+          photo: true,
+          area: true,
+          property_for: true,
+          property_type: true,
+          property_id: true,
+          pending: true,
+          status: true,
+          created_at: true,
+          updated_at: true,
+          userId: true,
+        },
+      });
   return posts;
 };
 export const deletePost = async (id: number) => {
@@ -436,6 +630,8 @@ export const deletePost = async (id: number) => {
         description: existingPost.description,
         property_id: existingPost.property_id,
         slug: existingPost.slug,
+        phoneNumber: existingPost.phoneNumber,
+        pending: existingPost.pending,
         bedroom: existingPost.bedroom,
         bathroom: existingPost.bathroom,
         created_at: existingPost.created_at,
@@ -453,26 +649,33 @@ export const deletePost = async (id: number) => {
   revalidatePath("/admin/posts/all");
   return { title: ["Post Deleted Successfully"] };
 };
-// const headersList = headers();
-// const domain = headersList.get("host") || "";
-// export const createFileFromUrl = async (images: string[]) => {
-//   const formData = new FormData();
-//   const files: File[] = [];
-//   await Promise.all(
-//     images.map(async (image) => {
-//       const file = await createFile(
-//         "http://" + domain + image,
-//         image.split("/").at(-1) || "image.png",
-//         "image/" + image.split(".").at(-1) || "image/png"
-//       );
-//       if (file) {
-//         files.push(file);
-//       }
-//     })
-//   );
-//   formData.append("file", "files[0]");
-//   return formData;
-// };
+
+export const changePendingStatus = async (slug: string, isPending: boolean) => {
+  const user = await auth();
+
+  if (!user || user === null) return;
+
+  const post = await db.post.findUnique({
+    where: { slug },
+    select: { status: true, pending: true, id: true, User: true },
+  });
+
+  if (!post) return;
+  if (post.pending === isPending)
+    return { message: ["Post Updated Successfully"] };
+  if (post.status === true) return;
+  if (post.User.id !== user.user.id) return;
+
+  await db.post.update({
+    where: { id: post.id },
+    data: {
+      pending: isPending,
+    },
+  });
+  revalidatePath("/user/my-posts");
+
+  return { message: ["Post Updated Successfully"] };
+};
 
 export const deactivatePostStatus = async (slug: string) => {
   const user = await auth();
@@ -492,6 +695,7 @@ export const deactivatePostStatus = async (slug: string) => {
   await db.post.update({
     where: { id: post.id },
     data: {
+      pending: false,
       status: false,
     },
   });
@@ -523,6 +727,7 @@ export const updatePostStatus = async (
   await db.post.update({
     where: { id },
     data: {
+      pending: false,
       status: status,
     },
   });
@@ -530,19 +735,46 @@ export const updatePostStatus = async (
   return true;
 };
 
-export const getFilterPosts = async (
-  properyType: $Enums.PropertyType | undefined = undefined,
-  properyFor: $Enums.PropertyFor | undefined = undefined,
-  minAreaNumber: number = 0,
-  maxAreaNumber: number = 0,
-  bedroomNumber: number = 0,
-  bathroomNumber: number = 0
-) => {
+export const getFilterPosts = async ({
+  propertyType,
+  propertyFor,
+  minAreaNumber,
+  maxAreaNumber,
+  bedroomNumber,
+  bathroomNumber,
+  page,
+  take,
+  search,
+}: {
+  propertyType?: $Enums.PropertyType | undefined;
+  propertyFor?: $Enums.PropertyFor | undefined;
+  minAreaNumber?: number;
+  maxAreaNumber?: number;
+  bedroomNumber?: number;
+  bathroomNumber?: number;
+  page?: number;
+  take?: number;
+  search?: string;
+}) => {
+  if (page === undefined) {
+    page = 1;
+  }
+
+  if (take === undefined) {
+    take = 1;
+  }
+
+  if (search === undefined) {
+    search = "";
+  }
+
+  const pagination_query = { take: take, skip: page * take - take };
+
   let property_type = {};
-  if (properyType) property_type = { property_type: properyType };
+  if (propertyType) property_type = { property_type: propertyType };
 
   let property_for = {};
-  if (properyFor) property_for = { property_for: properyFor };
+  if (propertyFor) property_for = { property_for: propertyFor };
 
   let minArea = {};
   if (!!minAreaNumber) minArea = { gte: minAreaNumber };
@@ -559,13 +791,49 @@ export const getFilterPosts = async (
   return await db.post.findMany({
     where: {
       status: true,
+      OR: [
+        {
+          title: {
+            contains: search.replace(/\s+/g, " "),
+            mode: "insensitive",
+          },
+        },
+        {
+          thana: {
+            contains: search.replace(/\s+/g, " "),
+            mode: "insensitive",
+          },
+        },
+        {
+          location: {
+            contains: search.replace(/\s+/g, " "),
+            mode: "insensitive",
+          },
+        },
+        {
+          division: {
+            contains: search.replace(/\s+/g, " "),
+            mode: "insensitive",
+          },
+        },
+        {
+          district: {
+            contains: search.replace(/\s+/g, " "),
+            mode: "insensitive",
+          },
+        },
+      ],
+      // description: {
+      //   contains: search.replace(/\s+/g, " "),
+      //   mode: "insensitive",
+      // },
       ...property_type,
       ...property_for,
       area: { ...minArea, ...maxArea },
       ...bathroom,
       ...bedroom,
     },
-    take: 12,
+    ...pagination_query,
     select: {
       slug: true,
       title: true,

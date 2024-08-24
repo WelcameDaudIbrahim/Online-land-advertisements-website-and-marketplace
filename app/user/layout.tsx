@@ -10,7 +10,7 @@ export default function RootLayout({
   return (
     <>
       <Navbar />
-      <main className="w-full flex mt-14">
+      <main className="w-full flex flex-col md:flex-row mt-10 md:mt-14">
         <Sidebar />
         <div className="flex w-full flex-col h-[100vh] items-start">
           <Verification />

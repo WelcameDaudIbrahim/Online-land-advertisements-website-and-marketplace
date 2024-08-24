@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
+import Deployment from "./deployment";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await auth();
+
   return (
     <SessionProvider session={session}>
       <html lang="en">
@@ -40,6 +42,7 @@ export default async function RootLayout({
           )}
         >
           {children}
+          {process.env.NODE_ENV === "production" && <Deployment />}
           <Toaster />
         </body>
       </html>

@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { IMAGES_PATH_PREFIX } from "@/routes";
 
 const DragDropCard = ({
   file,
@@ -100,7 +101,7 @@ const Dragdrop = ({
       const addValue = async () => {
         const newFiles = await Promise.all(
           defaultValue.map(async (val) => {
-            let response = await fetch(val);
+            let response = await fetch(IMAGES_PATH_PREFIX + val);
             let data = await response.blob();
             let metadata = {
               type: "image/" + val.split(".").at(-1) || "image/png",

@@ -164,20 +164,6 @@ const Toolbar = ({ editor }: { editor: TEditor | null }) => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <ToolbarToggle
-        tooltip="Tooltip"
-        onClick={() => editor.chain().focus().toggleItalic().run()}
-        isActive={editor.isActive("Tooltip")}
-      >
-        <Italic className="size-4" />
-      </ToolbarToggle>
-      <ToolbarToggle
-        tooltip="Tooltip"
-        onClick={() => editor.chain().focus().toggleItalic().run()}
-        isActive={editor.isActive("Tooltip")}
-      >
-        <Italic className="size-4" />
-      </ToolbarToggle>
     </div>
   );
 };

@@ -11,6 +11,7 @@ import { ChevronDown } from "lucide-react";
 import { sign_out } from "@/actions/auth.action";
 import Link from "next/link";
 import useAuth from "@/hooks/useAuth";
+import { IMAGES_PATH_PREFIX } from "@/routes";
 1;
 
 export default function Navbar_Avatar() {
@@ -25,7 +26,15 @@ export default function Navbar_Avatar() {
           <DropdownMenuTrigger className="font-roboto text-base text-center ml-4 flex items-center gap-2">
             <div className="flex items-center justify-center bg-primary rounded-full size-8 md:size-[41px]">
               <Avatar className="size-8 md:size-9">
-                <AvatarImage src={user.image || "/assets/profile.png"} />
+                <AvatarImage
+                  src={
+                    user?.image
+                      ? user.image.startsWith("https://")
+                        ? user?.image
+                        : IMAGES_PATH_PREFIX + user?.image
+                      : "/assets/profile.png"
+                  }
+                />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
             </div>
@@ -73,7 +82,9 @@ export default function Navbar_Avatar() {
             <form
               action={async () => {
                 await sign_out();
-                window.location.reload();
+                if (typeof window !== "undefined") {
+                  window.location.reload();
+                }
               }}
             >
               <DropdownMenuItem asChild>

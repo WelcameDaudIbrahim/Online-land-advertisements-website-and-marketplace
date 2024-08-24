@@ -1,7 +1,6 @@
 import authConfig from "./auth.config";
 import NextAuth from "next-auth";
 import {
-  ADMIN_ROUTE_PREFIX,
   API_AUTH_ROUTE_PREFIX,
   AUTH_ROUTES,
   DEFAULT_REDIRECT_AFTER_LOGIN,
@@ -9,7 +8,7 @@ import {
 } from "./routes";
 const { auth } = NextAuth(authConfig);
 
-export default auth((req) => {
+export default auth((req, res) => {
   const { nextUrl } = req;
 
   const { pathname } = nextUrl;
@@ -30,7 +29,7 @@ export default auth((req) => {
   }
 
   if (!isLogin && isPrivateRoute) {
-    return Response.redirect(new URL("/log-in", nextUrl));
+    return Response.redirect(new URL("/log-in?error=OAccessDenied", nextUrl));
   }
 
   return;

@@ -1,10 +1,6 @@
-import {
-  AdminBox,
-  AdminButton,
-  AdminHeader,
-} from "@/components/admin/layout/Utils";
 import { columns } from "./columns";
 import {
+  FullPagination,
   Pagination,
   PaginationContent,
   PaginationEllipsis,
@@ -18,10 +14,23 @@ import { auth } from "@/auth";
 import { notFound } from "next/navigation";
 import { DataTable } from "./data-table";
 
-export default async function DemoPage() {
+export default async function Page({
+  params,
+  searchParams,
+}: {
+  params: { slug: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
   const user = await auth();
 
   if (!user) return notFound();
+
+  const take = Number(searchParams?.take) || 10;
+  const page = Number(searchParams?.page) || 1;
+  const total_page =
+    (await db.post.count({ where: { userId: user.user.id } })) / take;
+
+  const query = { take: take, skip: page * take - take };
 
   const data = await db.post.findMany({
     where: { userId: user.user.id },
@@ -33,9 +42,12 @@ export default async function DemoPage() {
       property_for: true,
       property_type: true,
       property_id: true,
+      pending: true,
       status: true,
     },
+    ...query,
   });
+
   return (
     <div className="px-3.5">
       <h1 className="text-black font-roboto text-3xl mb-4 font-medium tracking-wide">
@@ -45,26 +57,11 @@ export default async function DemoPage() {
         <DataTable columns={columns} data={data} />
       </div>
       <div className="w-full flex py-1.5 px-3.5 items-center justify-between">
-        <div></div>
-        <div></div>
-        <div>
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious href="#" />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">1</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationEllipsis />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext href="#" />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
+        <FullPagination
+          currentPage={page}
+          totalPages={total_page}
+          take={take}
+        />
       </div>
     </div>
   );

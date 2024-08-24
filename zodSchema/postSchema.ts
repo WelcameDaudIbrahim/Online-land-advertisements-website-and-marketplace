@@ -1,5 +1,5 @@
 import { districts, divisions, thanas } from "@/data/admin/data";
-import { z } from "zod";
+import { z, ZodTypeAny } from "zod";
 
 export const allowed_file_types = ["image/png", "image/jpg", "image/jpeg"];
 const allowed_file_size = 1024 * 1024 * 5;
@@ -31,12 +31,32 @@ const createImageSchema = z
 export const postSchema = z.object({
   title: z
     .string({ message: "Title is required" })
+    .trim()
     .min(5, { message: "Title must contain at least 5 character" })
     .max(255, { message: "Title must contain at less than 255 character" }),
   description: z
     .string({ message: "Description is required" })
     .min(50, { message: "Description must contain at least 50 character" })
     .max(5000, { message: "Description must be less than 5000 character" }),
+  phoneNumber: z
+    .string()
+    .trim()
+    .refine(
+      (number) => {
+        return number.replaceAll(/[^0-9.]/g, "").length === 11;
+      },
+      {
+        message: "Phone Number Must Be 11 Digits",
+      }
+    )
+    .refine(
+      (number) => {
+        return !isNaN(Number(number.toLowerCase().replace("e", "a")));
+      },
+      {
+        message: "Phone Number Must Be Valid",
+      }
+    ),
   area: z.coerce
     .number({ message: "Area(sqft) is required" })
     .min(1, { message: "Area(sqft) Must Be Grater Than 1" }),
@@ -53,7 +73,7 @@ export const postSchema = z.object({
   thana: z.string({ message: "Thana is required" }),
   location: z
     .string({ message: "Location is required" })
-    .min(20, { message: "Location must contain at least 20 character" })
+    .min(5, { message: "Location must contain at least 5 character" })
     .max(255, {
       message: "Location must contain at less than 255 character",
     }),
@@ -64,6 +84,7 @@ export const postSchema = z.object({
     .optional(),
   property_for: z.enum(Property_for, {
     required_error: "Property for is required",
+    message: "Property for is required",
   }),
   property_type: z.enum(Property_type, {
     message: "Property Type is required",

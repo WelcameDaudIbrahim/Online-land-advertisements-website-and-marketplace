@@ -1,38 +1,41 @@
 import { getFilterPosts } from "@/actions/post.action";
 import Posts from "@/components/posts/Posts";
-import db from "@/db/db";
 import { $Enums } from "@prisma/client";
 import React from "react";
 
 export default function FilterPosts({
-  type = undefined,
+  propertyType = undefined,
   Propertyfor = undefined,
   bedroom = 0,
   bathroom = 0,
   minAera = 0,
   maxArea = 0,
+  page = 1,
+  searchQuery = "",
 }: {
-  type?: $Enums.PropertyType | undefined;
+  propertyType?: $Enums.PropertyType | undefined;
   Propertyfor?: $Enums.PropertyFor | undefined;
   bedroom?: number;
   bathroom?: number;
   minAera?: number;
   maxArea?: number;
+  page?: number;
+  searchQuery?: string;
 }) {
-  return (
-    <Posts
-      getPosts={async () =>
-        await getFilterPosts(
-          type,
-          Propertyfor,
-          minAera,
-          maxArea,
-          bedroom,
-          bathroom
-        )
-      }
-      text=""
-      vertical={false}
-    />
-  );
+  console.log(searchQuery);
+
+  async function getPosts() {
+    return await getFilterPosts({
+      propertyType,
+      propertyFor: Propertyfor,
+      minAreaNumber: minAera,
+      maxAreaNumber: maxArea,
+      bedroomNumber: bedroom,
+      bathroomNumber: bathroom,
+      page,
+      take: 12,
+      search: searchQuery,
+    });
+  }
+  return <Posts getPosts={getPosts} text="" vertical={false} />;
 }

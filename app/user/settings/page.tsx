@@ -21,7 +21,9 @@ export default function Page() {
   const [state, action] = useFormState(updateSettings, null);
 
   if (state?.error === "200") {
-    window.location.reload();
+    if (typeof window !== "undefined") {
+      window.location.reload();
+    }
   }
 
   const user = useAuth();
@@ -46,7 +48,11 @@ export default function Page() {
           className="flex gap-y-2.5 py-2.5 px-3.5 w-full flex-col"
         >
           {state && state.error && (
-            <p className="text-red-600 text-lg font-medium tracking-wide font-roboto">
+            <p
+              className={`${
+                state.error === "200" ? "text-green-600" : "text-red-600"
+              } text-lg font-medium tracking-wide font-roboto`}
+            >
               {state.error}
             </p>
           )}

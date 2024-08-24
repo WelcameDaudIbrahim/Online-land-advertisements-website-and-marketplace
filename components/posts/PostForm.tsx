@@ -35,6 +35,7 @@ import Image from "next/image";
 import { $Enums } from "@prisma/client";
 import useAuth from "@/hooks/useAuth";
 import { Alert } from "../ui/alert-dialog";
+import { IMAGES_PATH_PREFIX } from "@/routes";
 
 export default function PostForm({
   id,
@@ -48,6 +49,7 @@ export default function PostForm({
     photo: string;
     images: string[];
     description: string;
+    phoneNumber: string;
     area: number;
     bedroom: number | null;
     bathroom: number | null;
@@ -67,7 +69,7 @@ export default function PostForm({
   const [isActive, setIsActive] = useState<boolean>(postData?.status || false);
 
   const [mainImagePreviewSrc, setMainImagePreviewSrc] = useState(
-    postData ? postData.photo : ""
+    postData ? IMAGES_PATH_PREFIX + postData.photo : ""
   );
   let defaultValues = {
     title: "",
@@ -77,6 +79,7 @@ export default function PostForm({
     title: "",
     description: "",
     area: "",
+    phoneNumber: "",
     bathroom: "",
     thana: "",
     bedroom: "",
@@ -91,6 +94,7 @@ export default function PostForm({
       title: postData.title,
       description: postData.description,
       area: postData.area ? postData.area.toString() : "0",
+      phoneNumber: postData.phoneNumber ? postData.phoneNumber.toString() : "0",
       bathroom: postData.bathroom ? postData.bathroom.toString() : "0",
       bedroom: postData.bedroom ? postData.bedroom.toString() : "0",
       thana: postData.thana,
@@ -138,6 +142,7 @@ export default function PostForm({
       }
       formData.append("property_for", data.property_for);
       formData.append("property_type", data.property_type);
+      formData.append("phoneNumber", data.phoneNumber);
       let returnValue;
       if (id) {
         returnValue = await updatePost(formData, id);
@@ -152,14 +157,33 @@ export default function PostForm({
               title: "Post Created Successfully",
               description:
                 "This Post Might Take Some Time To Be Approved (1-2 Days)",
+              variant: "default",
             });
+            // setTimeout(function () {
+            //   redirect(`/user/my-posts`);
+            // }, 2000);
           }
+
           form.setError("root", { message: value.join("\n") });
         }
       }
     });
   };
-
+  for (const [key, value] of Object.entries(form.formState.errors)) {
+    if (
+      value.message?.toString() !== "Post Created Successfully" &&
+      key.toLocaleLowerCase() !== "photos"
+    ) {
+      toast({
+        title:
+          key === "root"
+            ? "Field Error"
+            : capitalizeFirstLetter(key) + " Field",
+        description: value.message?.toString(),
+        variant: "destructive",
+      });
+    }
+  }
   const user = useAuth();
   if (!user) return;
 
@@ -168,12 +192,18 @@ export default function PostForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         {form.formState.errors.root && (
-          <p className="mb-2.5 text-red-600 text-lg font-medium tracking-wide font-roboto">
+          <p
+            className={`${
+              form.formState.errors.root.message !== "Post Created Successfully"
+                ? "text-red-600"
+                : "text-green-600"
+            } mb-2.5 text-lg font-medium tracking-wide font-roboto`}
+          >
             {form.formState.errors.root.message}
           </p>
         )}
 
-        <div className="grid grid-cols-2 gap-8">
+        <div className="flex flex-col gap-y--8 md:grid grid-cols-2 gap-8">
           <div className="col-span-2">
             <FormField
               control={form.control}
@@ -214,6 +244,55 @@ export default function PostForm({
                   </FormItem>
                 );
               }}
+            />
+          </div>
+          <div>
+            <FormField
+              control={form.control}
+              name="area"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Area(s.q.f.t)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="Area(sqft)"
+                      className="p-3 border-2 border-stone-300 rounded-sm w-full placeholder-stone-500 text-black text-base font-normal font-roboto leading-normal"
+                      {...field}
+                      onChange={(event) => field.onChange(+event.target.value)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div>
+            <FormField
+              control={form.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number For This Post</FormLabel>
+                  <FormControl>
+                    <div className="flex items-start justify-center w-full">
+                      <Input
+                        type="text"
+                        placeholder="+880"
+                        className="p-3 w-[68px] ml-0.5 border-2 opacity-100 flex-shrink border-stone-300 rounded-sm placeholder-black text-black text-base font-normal font-roboto leading-normal"
+                        disabled
+                      />
+                      <Input
+                        type="text"
+                        placeholder="Phone Number"
+                        className="p-3 border-2 border-stone-300 flex-grow rounded-sm w-full placeholder-stone-500 text-black text-base font-normal font-roboto leading-normal"
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
           <div>
@@ -406,7 +485,7 @@ export default function PostForm({
               disabled={!Boolean(districts[selected_division])}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Division</FormLabel>
+                  <FormLabel>District</FormLabel>
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
@@ -546,27 +625,7 @@ export default function PostForm({
               />
             </div>
           )}
-          <div className="col-span-2">
-            <FormField
-              control={form.control}
-              name="area"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Area(s.q.f.t)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Area(sqft)"
-                      className="p-3 border-2 border-stone-300 rounded-sm w-full placeholder-stone-500 text-black text-base font-normal font-roboto leading-normal"
-                      {...field}
-                      onChange={(event) => field.onChange(+event.target.value)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+
           {role === "admin" && id !== undefined && postData && (
             <>
               <div className="flex justify-between items-center w-full px-8 py-2.5 col-span-2">
@@ -593,7 +652,13 @@ export default function PostForm({
                       description="Are you sure you want to update post status? And it will reflect to all the users."
                       onContinue={() => {
                         startStatusTransition(async () => {
-                          await updatePostStatus(id, isActive);
+                          const returnValue = await updatePostStatus(
+                            id,
+                            isActive
+                          );
+                          if (returnValue) {
+                            setIsActive(false);
+                          }
                         });
                       }}
                     >

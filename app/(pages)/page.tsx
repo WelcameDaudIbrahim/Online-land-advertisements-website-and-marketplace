@@ -6,7 +6,7 @@ import db from "@/db/db";
 
 export default function Home() {
   const getPosts = async () => {
-    return await getFilterPosts();
+    return await getFilterPosts({ take: 8 });
   };
   return (
     <>

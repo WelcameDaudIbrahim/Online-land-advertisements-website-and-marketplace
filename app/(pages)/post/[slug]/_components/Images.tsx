@@ -1,4 +1,5 @@
 "use client";
+import { IMAGES_PATH_PREFIX } from "@/routes";
 import Image from "next/image";
 import React, { useState } from "react";
 
@@ -15,13 +16,19 @@ export default function Images({
   }[];
   photo: string;
 }) {
+  photo = IMAGES_PATH_PREFIX + photo;
+
   const [photoSrc, setPhotoSrc] = useState<string>(photo);
 
   return (
     <>
       <div>
         <div className="px-4 py-2.5 flex flex-col items-center justify-start">
-          <div className="rounded-md p-2 hover:border-primary cursor-pointer border border-gray-400">
+          <div
+            className={`rounded-md p-2 hover:border-primary hover:outline-primary cursor-pointer border outline outline-transparent border-gray-400 mt-3.5 ${
+              photo === photoSrc && "outline-primary border-primary"
+            }`}
+          >
             <Image
               src={photo}
               alt="Image"
@@ -29,30 +36,31 @@ export default function Images({
               height={100}
               quality={10}
               onClick={() => setPhotoSrc(photo)}
-              className={`rounded-md ${
-                photo === photoSrc && "border-2 border-primary"
-              }`}
+              className={`rounded-md`}
             />
           </div>
           {images.length > 0 &&
-            images.map((image) => (
-              <div
-                key={image.id}
-                onClick={() => setPhotoSrc(image.image)}
-                className={`rounded-md p-2 hover:border-primary cursor-pointer border border-gray-400 mt-3.5 ${
-                  image.image === photoSrc && "border-2 border-primary"
-                }`}
-              >
-                <Image
-                  src={image.image}
-                  alt="Image"
-                  width={100}
-                  height={100}
-                  priority
-                  className="rounded-md"
-                />
-              </div>
-            ))}
+            images.map((image) => {
+              const image_path = IMAGES_PATH_PREFIX + image.image;
+              return (
+                <div
+                  key={image.id}
+                  onClick={() => setPhotoSrc(image_path)}
+                  className={`rounded-md p-2 hover:border-primary hover:outline-primary cursor-pointer border outline outline-transparent border-gray-400 mt-3.5 ${
+                    image_path === photoSrc && "outline-primary border-primary"
+                  }`}
+                >
+                  <Image
+                    src={image_path}
+                    alt="Image"
+                    width={100}
+                    height={100}
+                    priority
+                    className="rounded-md"
+                  />
+                </div>
+              );
+            })}
         </div>
       </div>
       <div className="flex items-center justify-center w-full">
