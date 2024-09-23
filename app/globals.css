@@ -91,4 +91,25 @@
     outline: none;
   }
 
+
+  .tags-form>div>div>div>span {
+    border-radius: 110px;
+    padding: 0px 0 0 16px;
+    background: #126650ea;
+    color: #f4f4f4;
+    border: 1px solid #0f5140;
+    font-family: '__Roboto_2cac55';
+  }
+
+  .tags-form>div>div>div>span:hover {
+    background: #126650;
+  }
+
+  .tags-form>div>div>div>span>button {
+    padding: 0 12px;
+  }
+
+  .tags-form>div>div>div>span>button:hover {
+    color: #023020;
+  }
 }

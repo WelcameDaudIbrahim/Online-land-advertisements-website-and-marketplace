@@ -18,7 +18,7 @@ import blurHeroImage from "./../../public/assets/home/blur_hero.webp";
 export default function Hero() {
   const [propertyFor, setPropertyFor] = useState<string>("rent");
   const [propertyType, setPropertyType] = useState<string>("");
-  const [location, setLocation] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
   return (
     <div className="relative w-full h-[16vh] sm:h-[20vh] md:h-[56vh] flex-wrap inline-block">
       <div className="absolute -bottom-32 right-[-50%] size-[430.34px] md:w-[730.34px] md:h-[729.48px] bg-gradient-to-br from-slate-400 via-slate-500 to-teal-800 rounded-full blur-[1200px] -z-20"></div>
@@ -47,7 +47,7 @@ export default function Hero() {
               alt="line"
               width="240"
               height="4"
-              className="-mt-4 hidden md:block"
+              className="-mt-[0.8rem] rotate-[-3deg] hidden md:block"
               quality={100}
             />
           </span>
@@ -75,7 +75,7 @@ export default function Hero() {
           </div>
         </div>
         <div className="flex items-center mx-auto flex-col sm:flex-row justify-between md:mx-0 px-2.5 md:px-4 py-2 w-[92%] sm:w-[99%] m:w-full max-w-[1244px] gap-y-1 sm:gap-2.5 bg-gray-200 shadow md:shadow-lg rounded-sm">
-          <SearchBar onChange={(value) => setLocation(value)} />
+          <SearchBar onChange={(value) => setAddress(value)} />
           <Select onValueChange={(value) => setPropertyType(value)}>
             <SelectTrigger
               className="flex-grow"
@@ -92,7 +92,7 @@ export default function Hero() {
             onClick={() => {
               if (typeof window !== "undefined") {
                 window.location.replace(
-                  `/listing?type=${propertyType}&for=${propertyFor}&search=${location}`
+                  `/listing?type=${propertyType}&for=${propertyFor}&search=${address}`
                 );
               }
             }}

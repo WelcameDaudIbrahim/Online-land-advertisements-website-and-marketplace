@@ -10,13 +10,13 @@ export type PostCardType = {
   photo: string;
   updated_at: Date;
   slug: string;
-  thana: string;
+  upazila: string;
   district: string;
   division: string;
   bedroom: number | null;
   bathroom: number | null;
-  property_for: $Enums.PropertyFor;
-  property_type: $Enums.PropertyType;
+  property_for: $Enums.post_property_for;
+  property_type: $Enums.post_property_type;
 };
 
 export type getPostsType = () => Promise<PostCardType[]>;

@@ -2,7 +2,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -12,7 +11,11 @@ import AdminCreatePostButton from "../_components/AdminBackButton copy";
 import { AdminHeader } from "@/components/admin/layout/Utils";
 import db from "@/db/db";
 import { PostByTime } from "../_components/dashboardChart";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "Dashboard",
+};
 export default async function page() {
   const monthOrder = [
     "January",
@@ -32,7 +35,7 @@ export default async function page() {
   const total_posts = await db.post.count();
   const active_total_posts = await db.post.count({ where: { status: true } });
   const pending_total_posts = await db.post.count({ where: { pending: true } });
-  const deleted_total_posts = await db.deletedPost.count();
+  const deleted_total_posts = await db.deletedpost.count();
   const previous_month_total_posts = await db.post.count({
     where: {
       created_at: {
@@ -82,7 +85,7 @@ export default async function page() {
     return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
   });
   return (
-    <div className="w-full flex flex-wrap ">
+    <div className="w-full flex flex-wrap">
       <div className="flex items-center w-full justify-between py-2.5 mt-2.5 mb-4 mx-4">
         <AdminHeader>Dashboard</AdminHeader>
         <AdminCreatePostButton />

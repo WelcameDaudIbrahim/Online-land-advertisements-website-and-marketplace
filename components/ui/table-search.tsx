@@ -28,20 +28,22 @@ export default function PostSearch({
   const searchParams = useSearchParams();
 
   const onSubmit = () => {
-    if (typeof window !== "undefined") {
-      search !== searchParams.get("search")
-        ? window.location.replace(
-            UpdateQuery(
-              [{ field: "search", value: search }],
-              searchParams,
-              pathname
+    if (searchParams !== null && pathname !== null) {
+      if (typeof window !== "undefined") {
+        search !== searchParams.get("search")
+          ? window.location.replace(
+              UpdateQuery(
+                [{ field: "search", value: search }],
+                searchParams,
+                pathname
+              )
             )
-          )
-        : "";
+          : "";
+      }
     }
   };
 
-  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [search, setSearch] = useState(searchParams?.get("search") || "");
 
   return (
     <div

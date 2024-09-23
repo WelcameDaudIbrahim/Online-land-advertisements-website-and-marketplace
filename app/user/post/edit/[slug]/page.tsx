@@ -9,14 +9,15 @@ import { notFound } from "next/navigation";
 import db from "@/db/db";
 import { headers } from "next/headers";
 import { auth } from "@/auth";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "Edit Post",
+};
 export default async function Page({ params }: { params: { slug: string } }) {
   const user = await auth();
 
   if (!user || user === null) return notFound();
-
-  const headersList = headers();
-  const domain = headersList.get("host") || "";
 
   const { slug } = params;
 
@@ -33,18 +34,30 @@ export default async function Page({ params }: { params: { slug: string } }) {
       description: true,
       phoneNumber: true,
       area: true,
+      tags: true,
       bedroom: true,
       bathroom: true,
+      price: true,
+      availableFrom: true,
+      negotiable: true,
       property_for: true,
+      facing: true,
+      parking: true,
+      selling_floor: true,
+      amenities: true,
+      total_floor: true,
+      transaction_type: true,
+      balcony: true,
+      total_land_area: true,
       property_type: true,
-      thana: true,
+      upazila: true,
       district: true,
       division: true,
-      location: true,
+      address: true,
       status: true,
       created_at: true,
       updated_at: true,
-      Images: { select: { image: true } },
+      image: { select: { image: true } },
     },
   });
 
@@ -52,7 +65,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
 
   const Images: string[] = [];
 
-  const { Images: newImages, ...newPost } = post;
+  const { image: newImages, tags: postTags, ...newPost } = post;
 
   newImages.map(({ image }) => {
     Images.push(image);
@@ -62,7 +75,10 @@ export default async function Page({ params }: { params: { slug: string } }) {
       <h1 className="text-black font-roboto text-3xl mb-4 font-medium tracking-wide">
         Update Posts
       </h1>
-      <PostForm id={post.id} postData={{ ...newPost, images: Images }} />
+      <PostForm
+        id={post.id}
+        postData={{ ...newPost, images: Images, postTags }}
+      />
     </div>
   );
 }

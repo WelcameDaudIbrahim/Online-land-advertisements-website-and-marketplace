@@ -17,12 +17,20 @@ export function Filter() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const bathroomNumberParams = searchParams.get("bathroom");
-  const bedroomNumberParams = searchParams.get("bedroom");
-  const propertyTypeParams = searchParams.get("type");
-  const propertyForParams = searchParams.get("for");
-  const minAreaParams = searchParams.get("minArea");
-  const maxAreaParams = searchParams.get("maxArea");
+  let bathroomNumberParams: string | null = "";
+  let bedroomNumberParams: string | null = "";
+  let propertyForParams: string | null = "";
+  let propertyTypeParams: string | null = "";
+  let minAreaParams: string | null = "";
+  let maxAreaParams: string | null = "";
+  if (searchParams !== null) {
+    bathroomNumberParams = searchParams.get("bathroom");
+    bedroomNumberParams = searchParams.get("bedroom");
+    propertyForParams = searchParams.get("type");
+    propertyTypeParams = searchParams.get("for");
+    minAreaParams = searchParams.get("minArea");
+    maxAreaParams = searchParams.get("maxArea");
+  }
 
   const [minArea, setMinArea] = useState(Number(minAreaParams));
   const [maxArea, setMaxArea] = useState(Number(maxAreaParams));
@@ -75,7 +83,11 @@ export function Filter() {
       params.push({ field: "maxArea", value: maxArea.toString() });
     }
     if (params.length > 0) {
-      if (typeof window !== "undefined") {
+      if (
+        typeof window !== "undefined" &&
+        searchParams !== null &&
+        pathname !== null
+      ) {
         window.location.replace(UpdateQuery(params, searchParams, pathname));
       }
     }
@@ -88,7 +100,7 @@ export function Filter() {
             <p className="font-medium text-base leading-7 text-black ">
               Filter Posts
             </p>
-            <Link href={pathname}>
+            <Link href={pathname || "/"}>
               <p className="font-medium text-xs text-gray-500 cursor-pointer transition-all duration-500 hover:text-primary">
                 RESET
               </p>
@@ -288,7 +300,7 @@ export function Filter() {
               </Button>
             </div>
             <div className="flex items-center flex-1">
-              <Link href={pathname} className="w-full">
+              <Link href={pathname || "/"} className="w-full">
                 <Button variant={"link"} className="w-full">
                   Reset
                 </Button>

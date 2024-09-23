@@ -21,7 +21,7 @@ export const track = async (data: {
 
   const { message, ...location } = locationJson;
 
-  await db.userInfo.create({
+  await db.userinfo.create({
     data: { ...data, ...location },
   });
 };

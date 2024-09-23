@@ -14,7 +14,12 @@ export function SidebarLinks({
   isSidebarOpen: boolean;
 }) {
   const pathname = usePathname();
-  const isActive: boolean = pathname.includes(link.href || link.path || "");
+
+  let isActive: boolean = false;
+
+  if (pathname !== null) {
+    isActive = pathname.includes(link.href || link.path || "");
+  }
 
   const [isOpen, setIsOpen] = useState(isActive || false);
 

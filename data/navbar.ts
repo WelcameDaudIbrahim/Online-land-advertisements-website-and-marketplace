@@ -9,4 +9,12 @@ export const navbarLinks: Links = [
     name: "Properties",
     href: "/listing",
   },
+  {
+    name: "About Us",
+    href: "/about-us",
+  },
+  {
+    name: "Contact Us",
+    href: "/contact-us",
+  },
 ];

@@ -8,7 +8,11 @@ import Link from "next/link";
 import db from "@/db/db";
 import PostSearch from "@/components/ui/table-search";
 import { $Enums } from "@prisma/client";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "All Posts",
+};
 export default async function Page({
   params,
   searchParams,
@@ -39,13 +43,13 @@ export default async function Page({
         ? ["residential", "commercial"].includes(
             propertyTypeParams?.toLowerCase() || ""
           )
-          ? (propertyTypeParams as $Enums.PropertyType)
+          ? (propertyTypeParams as $Enums.post_property_type)
           : undefined
         : undefined,
     propertyFor:
       propertyForParams !== null
         ? ["sale", "rent"].includes(propertyForParams?.toLowerCase() || "")
-          ? (propertyForParams as $Enums.PropertyFor)
+          ? (propertyForParams as $Enums.post_property_for)
           : undefined
         : undefined,
     minAreaNumber: Number(minAreaParams) || undefined,
@@ -55,7 +59,7 @@ export default async function Page({
     user_id: userId || undefined,
   });
 
-  const trashCount = await db.deletedPost.count();
+  const trashCount = await db.deletedpost.count();
   return (
     <div className="px-3.5">
       <div className="flex items-center w-full justify-between py-2.5 mt-2.5 mb-4">

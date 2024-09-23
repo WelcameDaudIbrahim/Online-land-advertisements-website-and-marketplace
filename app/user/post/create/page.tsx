@@ -3,7 +3,11 @@ import PostForm from "@/components/posts/PostForm";
 import { auth } from "@/auth";
 import { notFound } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "Create Post",
+};
 export default async function page() {
   const user = await auth();
   if (!user) return notFound();

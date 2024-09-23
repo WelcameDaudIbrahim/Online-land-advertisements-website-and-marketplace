@@ -144,21 +144,24 @@ export function getMiniInfo(window: Window & typeof globalThis) {
 
 export default function Track() {
   const pathname = usePathname();
+
   useEffect(() => {
-    fetch("https://api.ipify.org/?format=json")
-      .then(async (response) => {
-        const ip_data = await response.json();
-        let ip = ip_data.ip;
-        const data = getMiniInfo(window);
-        await track({ ip, ...data, url: pathname });
-      })
-      .catch(async (err) => {
-        let ip = undefined;
-        const data = getMiniInfo(window);
-        await track({ ip, ...data, url: pathname });
-        console.log(err);
-        return;
-      });
+    if (pathname !== null) {
+      fetch("https://api.ipify.org/?format=json")
+        .then(async (response) => {
+          const ip_data = await response.json();
+          let ip = ip_data.ip;
+          const data = getMiniInfo(window);
+          await track({ ip, ...data, url: pathname });
+        })
+        .catch(async (err) => {
+          let ip = undefined;
+          const data = getMiniInfo(window);
+          await track({ ip, ...data, url: pathname });
+          console.log(err);
+          return;
+        });
+    }
   }, []);
   return <></>;
 }

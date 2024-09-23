@@ -1,19 +1,14 @@
 import { columns } from "./columns";
-import {
-  FullPagination,
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { FullPagination } from "@/components/ui/pagination";
 import db from "@/db/db";
 import { auth } from "@/auth";
 import { notFound } from "next/navigation";
 import { DataTable } from "./data-table";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "My Posts",
+};
 export default async function Page({
   params,
   searchParams,
@@ -24,6 +19,8 @@ export default async function Page({
   const user = await auth();
 
   if (!user) return notFound();
+
+  const message = searchParams?.message === "created" ? "created" : false;
 
   const take = Number(searchParams?.take) || 10;
   const page = Number(searchParams?.page) || 1;
@@ -54,7 +51,7 @@ export default async function Page({
         My Posts
       </h1>
       <div className="container mx-auto px-1.5 py-2.5">
-        <DataTable columns={columns} data={data} />
+        <DataTable columns={columns} data={data} message={message} />
       </div>
       <div className="w-full flex py-1.5 px-3.5 items-center justify-between">
         <FullPagination

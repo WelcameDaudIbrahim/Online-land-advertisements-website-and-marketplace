@@ -1,4 +1,4 @@
-import { FcStatistics } from "react-icons/fc";
+import { FcContacts, FcStatistics } from "react-icons/fc";
 import { sidebarLink } from "@/types/types";
 import { FaHome, FaUsers } from "react-icons/fa";
 import { FaSignsPost } from "react-icons/fa6";
@@ -37,6 +37,11 @@ export const sidebar_links: sidebarLink[] = [
     name: "Visitor Statistics",
     href: "/admin/statistics/visitor",
     icon: FcStatistics,
+  },
+  {
+    name: "Contacts Us",
+    href: "/admin/contact_us",
+    icon: FcContacts,
   },
   // {
   //   name: "Users",

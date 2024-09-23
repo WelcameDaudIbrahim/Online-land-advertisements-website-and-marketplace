@@ -2,6 +2,7 @@ import { CalendarCheck2, ChevronRight } from "lucide-react";
 import React, { Suspense } from "react";
 import { Button } from "../ui/button";
 import Track from "../track/Track";
+import Link from "next/link";
 
 export default function WhyChooseUs() {
   return (
@@ -27,7 +28,12 @@ export default function WhyChooseUs() {
             variant="link"
             className="text-black text-base font-normal font-roboto leading-normal gap-1 mt-2"
           >
-            Learn More <ChevronRight className="size-5" />
+            <Link
+              href="/about-us"
+              className="contents text-black text-base font-normal font-roboto leading-normal gap-1 mt-2"
+            >
+              Learn More <ChevronRight className="size-5" />
+            </Link>
           </Button>
         </div>
         <div className="flex items-center gap-4 flex-col">
@@ -43,7 +49,12 @@ export default function WhyChooseUs() {
             variant="link"
             className="text-black text-base font-normal font-roboto leading-normal gap-1 mt-2"
           >
-            Learn More <ChevronRight className="size-5" />
+            <Link
+              href="/about-us"
+              className="contents text-black text-base font-normal font-roboto leading-normal gap-1 mt-2"
+            >
+              Learn More <ChevronRight className="size-5" />
+            </Link>
           </Button>
         </div>
         <div className="flex items-center gap-4 flex-col">
@@ -59,7 +70,12 @@ export default function WhyChooseUs() {
             variant="link"
             className="text-black text-base font-normal font-roboto leading-normal gap-1 mt-2"
           >
-            Learn More <ChevronRight className="size-5" />
+            <Link
+              href="/about-us"
+              className="contents text-black text-base font-normal font-roboto leading-normal gap-1 mt-2"
+            >
+              Learn More <ChevronRight className="size-5" />
+            </Link>
           </Button>
         </div>
       </div>

@@ -5,7 +5,11 @@ import { $Enums } from "@prisma/client";
 import { FullPagination } from "@/components/ui/pagination";
 import { Filter } from "./Filter";
 import PostSearch from "@/components/ui/table-search";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "Properties",
+};
 export default function Page({
   params,
   searchParams,
@@ -40,7 +44,7 @@ export default function Page({
                 ? ["residential", "commercial"].includes(
                     propertyTypeParams?.toLowerCase() || ""
                   )
-                  ? (propertyTypeParams as $Enums.PropertyType)
+                  ? (propertyTypeParams as $Enums.post_property_type)
                   : undefined
                 : undefined
             }
@@ -49,7 +53,7 @@ export default function Page({
                 ? ["sale", "rent"].includes(
                     propertyForParams?.toLowerCase() || ""
                   )
-                  ? (propertyForParams as $Enums.PropertyFor)
+                  ? (propertyForParams as $Enums.post_property_for)
                   : undefined
                 : undefined
             }

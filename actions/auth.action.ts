@@ -16,6 +16,7 @@ import { AuthError } from "next-auth";
 import { DEFAULT_REDIRECT_AFTER_LOGIN } from "@/routes";
 import { sendVerification } from "./user.action";
 import { sendResetPasswordMail } from "./mail";
+import { contactToSellerSchema, contactUsSchema } from "@/zodSchema/userSchema";
 
 export const login = async (prevState: unknown, formData: FormData) => {
   const result = logInSchema.safeParse(Object.fromEntries(formData));
@@ -51,7 +52,7 @@ export const getResetPasswordEmail = async (token: string) => {
     return false;
   }
 
-  const resetPasswordToken = await db.resetPasswordToken.findUnique({
+  const resetPasswordToken = await db.resetpasswordtoken.findUnique({
     where: { token },
     select: { email: true, expires: true, token: true },
   });
@@ -61,7 +62,7 @@ export const getResetPasswordEmail = async (token: string) => {
   }
 
   if (resetPasswordToken.expires < new Date()) {
-    await db.resetPasswordToken.delete({
+    await db.resetpasswordtoken.delete({
       where: { token: resetPasswordToken.token },
     });
     return false;
@@ -95,7 +96,7 @@ export const forgotPasswordChange = async (
     return { error: "Something Went Wrong" };
   }
 
-  await db.resetPasswordToken.delete({
+  await db.resetpasswordtoken.delete({
     where: { token: existingToken.token },
   });
 
@@ -137,15 +138,15 @@ export const forgotPasswordEmailSent = async (
     return { error: "Email Not Found" };
   }
 
-  const existingToken = await db.resetPasswordToken.findFirst({
+  const existingToken = await db.resetpasswordtoken.findFirst({
     where: { user_id: user.id },
   });
 
   if (existingToken) {
-    await db.resetPasswordToken.deleteMany({ where: { user_id: user.id } });
+    await db.resetpasswordtoken.deleteMany({ where: { user_id: user.id } });
   }
 
-  const token = await db.resetPasswordToken.create({
+  const token = await db.resetpasswordtoken.create({
     data: {
       email,
       user_id: user.id,
@@ -214,7 +215,7 @@ export const getUserById = async (id: string) => {
 
 export const getUserByEmail = async (
   email: string,
-  args?: Omit<Prisma.UserFindUniqueArgs, "where">
+  args?: Omit<Prisma.userFindUniqueArgs, "where">
 ) => {
   try {
     const user = await db.user.findUnique({ where: { email }, ...args });
@@ -223,4 +224,61 @@ export const getUserByEmail = async (
   } catch {
     return null;
   }
+};
+
+export const sendContactUs = async (
+  post_id: number | undefined,
+  prevState: unknown,
+  formData: FormData
+) => {
+  if (!post_id) {
+    const result = contactUsSchema.safeParse(Object.fromEntries(formData));
+
+    if (!result.success) {
+      return { ...result.error.formErrors.fieldErrors, error: "" };
+    }
+
+    const { name, email, subject, message } = result.data;
+
+    await db.contactus.create({
+      data: { name, email, subject, message },
+    });
+  } else {
+    const result = contactToSellerSchema.safeParse(
+      Object.fromEntries(formData)
+    );
+
+    if (!result.success) {
+      return { ...result.error.formErrors.fieldErrors, error: "" };
+    }
+
+    const { name, email, phoneNumber, message } = result.data;
+
+    const post = await db.post.findUnique({
+      where: { id: post_id },
+      select: { userId: true, id: true },
+    });
+
+    if (!post) return { error: "" };
+
+    const seller = await db.user.findUnique({
+      where: { id: post.userId },
+      select: { id: true },
+    });
+
+    if (!seller) return { error: "" };
+
+    await db.contactus.create({
+      data: {
+        name,
+        email,
+        phoneNumber,
+        message,
+        // messageTo: { connect: { id: seller.id } },
+        // messageTo: seller.id,
+        post: { connect: { id: post.id } },
+      },
+    });
+  }
+  return { name: "200" };
 };

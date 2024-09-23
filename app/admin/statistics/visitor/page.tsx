@@ -3,7 +3,11 @@ import React from "react";
 import AdminCreatePostButton from "../../_components/AdminBackButton copy";
 import { BrowserChart } from "../../_components/VisitorCharts";
 import db from "@/db/db";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "Statistics",
+};
 const getBrowserData = async (privateBrowser: boolean = false) => {
   let privateBrowserQuery = {};
 
@@ -13,7 +17,7 @@ const getBrowserData = async (privateBrowser: boolean = false) => {
     privateBrowserQuery = { not: null };
   }
 
-  const browser_data = await db.userInfo.groupBy({
+  const browser_data = await db.userinfo.groupBy({
     by: ["browser", "ip"],
     having: {
       ip: { ...privateBrowserQuery },

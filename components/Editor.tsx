@@ -177,7 +177,7 @@ const Editor = ({
   onChange: (text: string) => void;
   className?: string;
 }) => {
-  const TextLimit = 5000;
+  const TextLimit = 800;
   const [characterCount, setCharacterCount] = useState(0);
 
   const editor = useEditor({
@@ -220,7 +220,7 @@ const Editor = ({
         <p>
           Powered By{" "}
           <span className="text-primary font-medium tracking-wider text-base hover:text-primary-dark">
-            Bdload
+            Bdlord
           </span>
         </p>
         <div

@@ -1,39 +1,14 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.0.x"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  user
-  admin
-}
-
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  password      String?
-  image         String    @default("/assets/profile.png")
-  accounts      Account[]
-  Post          Post[]
-  role          Role      @default(user)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Account {
+model account {
   userId            String
   type              String
   provider          String
@@ -45,119 +20,157 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              user     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Account_userId_fkey")
 
   @@id([provider, providerAccountId])
+  @@index([userId], map: "Account_userId_fkey")
 }
 
-enum PropertyFor {
-  rent
-  sale
+model contactus {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(256)
+  email       String   @db.VarChar(256)
+  subject     String?  @db.VarChar(256)
+  message     String   @db.VarChar(256)
+  isRead      Boolean  @default(false)
+  status      String   @default("Pending") @db.VarChar(256)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  messageTo   String?
+  postId      Int?
+  phoneNumber String?
+  user        user?    @relation(fields: [messageTo], references: [id], onDelete: Cascade, map: "ContactUs_messageTo_fkey")
+  post        post?    @relation(fields: [postId], references: [id], onDelete: Cascade, map: "ContactUs_postId_fkey")
+
+  @@index([postId], map: "ContactUs_postId_fkey")
+  @@index([messageTo], map: "ContactUs_messageTo_fkey")
 }
 
-enum PropertyType {
-  residential
-  commercial
+model deletedpost {
+  id               Int                        @id @default(autoincrement())
+  post_id          Int
+  property_id      String                     @unique(map: "DeletedPost_property_id_key")
+  slug             String                     @unique(map: "DeletedPost_slug_key")
+  title            String                     @db.VarChar(256)
+  description      String                     @db.VarChar(2000)
+  area             Int
+  photo            String                     @default("/assets/no-image.jpg")
+  total_floor      Int
+  selling_floor    Int
+  balcony          Int?
+  facing           String
+  parking          Boolean
+  transaction_type String
+  total_land_area  String?
+  tags             String
+  bedroom          Int?
+  availableFrom    deletedpost_availableFrom?
+  price            Int
+  bathroom         Int?
+  upazila          String
+  district         String
+  division         String
+  negotiable       Boolean
+  address          String
+  property_for     deletedpost_property_for
+  property_type    deletedpost_property_type
+  pending          Boolean
+  phoneNumber      String
+  userId           String
+  name             String?
+  email            String
+  emailVerified    DateTime?
+  status           Boolean                    @default(false)
+  deleted_at       DateTime                   @default(now())
+  created_at       DateTime
+  updated_at       DateTime                   @updatedAt
+  amenities        String
 }
 
-model Image {
+model image {
   id         Int      @id @default(autoincrement())
   image      String
-  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   postId     Int
+  post       post     @relation(fields: [postId], references: [id], onDelete: Cascade, map: "Image_postId_fkey")
+
+  @@index([postId], map: "Image_postId_fkey")
 }
 
-model Post {
-  id            Int          @id @default(autoincrement())
-  property_id   String       @unique
-  slug          String       @unique
-  title         String       @db.VarChar(256)
-  description   String       @db.VarChar(5000)
-  area          Int
-  bedroom       Int?
-  bathroom      Int?
-  thana         String
-  district      String
-  division      String
-  location      String
-  photo         String
-  phoneNumber   String
-  Images        Image[]
-  property_for  PropertyFor
-  property_type PropertyType
-  pending       Boolean      @default(true)
-  User          User         @relation(fields: [userId], references: [id])
-  userId        String
-  status        Boolean      @default(false)
-  created_at    DateTime     @default(now())
-  updated_at    DateTime     @updatedAt
+model post {
+  id               Int                 @id @default(autoincrement())
+  property_id      String              @unique(map: "Post_property_id_key")
+  slug             String              @unique(map: "Post_slug_key")
+  title            String              @db.VarChar(128)
+  description      String              @db.VarChar(800)
+  area             Int
+  bedroom          Int?
+  bathroom         Int?
+  upazila          String
+  district         String
+  division         String
+  address          String
+  photo            String
+  total_floor      Int
+  selling_floor    Int
+  balcony          Int?
+  facing           String
+  parking          Boolean
+  transaction_type String
+  total_land_area  String?
+  tags             String
+  phoneNumber      String
+  negotiable       Boolean             @default(false)
+  availableFrom    post_availableFrom?
+  price            Int
+  property_for     post_property_for
+  property_type    post_property_type
+  pending          Boolean             @default(true)
+  userId           String
+  status           Boolean             @default(false)
+  created_at       DateTime            @default(now())
+  updated_at       DateTime            @updatedAt
+  amenities        String              @default(",")
+  contactus        contactus[]
+  image            image[]
+  user             user                @relation(fields: [userId], references: [id], map: "Post_userId_fkey")
+
+  @@index([userId], map: "Post_userId_fkey")
 }
 
-model DeletedPost {
-  id            Int          @id @default(autoincrement())
-  post_id       Int
-  property_id   String       @unique
-  slug          String       @unique
-  title         String       @db.VarChar(256)
-  description   String       @db.VarChar(1500)
-  area          Int
-  photo         String       @default("/assets/no-image.jpg")
-  bedroom       Int?
-  bathroom      Int?
-  thana         String
-  district      String
-  division      String
-  location      String
-  property_for  PropertyFor
-  property_type PropertyType
-  pending       Boolean
-  phoneNumber   String
-  // User Details
-  userId        String
+model resetpasswordtoken {
+  id         Int      @id @default(autoincrement())
+  email      String
+  user_id    String
+  token      String   @unique(map: "ResetPasswordToken_token_key")
+  expires    DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([email, token], map: "ResetPasswordToken_email_token_key")
+}
+
+model user {
+  id            String      @id @default(uuid())
   name          String?
-  email         String
+  email         String      @unique(map: "User_email_key")
   emailVerified DateTime?
-  // User Details Ends
-  status        Boolean      @default(false)
-  deleted_at    DateTime     @default(now())
-  created_at    DateTime
-  updated_at    DateTime
+  password      String?
+  image         String      @default("/assets/profile.png")
+  role          user_role   @default(user)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  account       account[]
+  contactus     contactus[]
+  post          post[]
 }
 
-model VerificationToken {
-  id         Int      @id @default(autoincrement())
-  email      String
-  user_id    String
-  token      String   @unique
-  expires    DateTime
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@unique([email, token])
-}
-
-model ResetPasswordToken {
-  id         Int      @id @default(autoincrement())
-  email      String
-  user_id    String
-  token      String   @unique
-  expires    DateTime
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@unique([email, token])
-}
-
-model UserInfo {
-  id     Int    @id @default(autoincrement())
-  status String @default("fail")
-
+model userinfo {
+  id                  Int       @id @default(autoincrement())
+  status              String    @default("fail")
   ip                  String?
   ipv4                String?
   ipv6                String?
@@ -170,26 +183,91 @@ model UserInfo {
   os                  String?
   osVersion           String?
   cookies             Boolean?
+  continent           String?
+  country             String?
+  countryCode         String?
+  region              String?
+  regionName          String?
+  city                String?
+  zip                 String?
+  district            String?
+  lat                 Float?
+  lon                 Float?
+  timezone            String?
+  isp                 String?
+  org                 String?
+  as                  String?
+  proxy               Boolean?
+  query               String?
+  userId              DateTime?
+  logged_in           DateTime?
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+}
 
-  continent   String?
-  country     String?
-  countryCode String?
-  region      String?
-  regionName  String?
-  city        String?
-  zip         String?
-  district    String?
-  lat         Float?
-  lon         Float?
-  timezone    String?
-  isp         String?
-  org         String?
-  as          String?
-  proxy       Boolean?
-  query       String?
+model verificationtoken {
+  id         Int      @id @default(autoincrement())
+  email      String
+  user_id    String
+  token      String   @unique(map: "VerificationToken_token_key")
+  expires    DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  userId     DateTime?
-  logged_in  DateTime?
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
+  @@unique([email, token], map: "VerificationToken_email_token_key")
+}
+
+enum user_role {
+  user
+  admin
+}
+
+enum deletedpost_availableFrom {
+  January
+  February
+  March
+  April
+  May
+  June
+  July
+  August
+  September
+  October
+  November
+  December
+}
+
+enum post_availableFrom {
+  January
+  February
+  March
+  April
+  May
+  June
+  July
+  August
+  September
+  October
+  November
+  December
+}
+
+enum deletedpost_property_for {
+  rent
+  sale
+}
+
+enum post_property_for {
+  rent
+  sale
+}
+
+enum deletedpost_property_type {
+  residential
+  commercial
+}
+
+enum post_property_type {
+  residential
+  commercial
 }

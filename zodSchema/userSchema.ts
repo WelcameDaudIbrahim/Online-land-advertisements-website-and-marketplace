@@ -8,7 +8,8 @@ export const settingsSchema = z.object({
     .max(255, { message: "Name Cannot Be Longer Than 255 Character" }),
   email: z
     .string({ message: "E-mail is required" })
-    .email({ message: "Please Enter A Valid E-mail" }),
+    .email({ message: "Please Enter A Valid E-mail" })
+    .max(255, { message: "Email Cannot Be Longer Than 255 Character" }),
 });
 
 export const avatarSchema = z.object({
@@ -60,3 +61,40 @@ export const changePasswordSchema = z
     message: "New Password And Confirm Password Does Not Match.",
     path: ["confirmPassword"],
   });
+
+export const contactSchema = z.object({
+  name: z
+    .string({ message: "Name is required" })
+    .min(3, { message: "Name Must Be 3 Character Long" })
+    .max(255, { message: "Name Cannot Be Longer Than 255 Character" }),
+  email: z
+    .string({ message: "E-mail is required" })
+    .email({ message: "Please Enter A Valid E-mail" })
+    .max(255, { message: "Email Cannot Be Longer Than 255 Character" }),
+
+  message: z
+    .string({ message: "Message is required" })
+    .min(5, { message: "Message Must Be 5 Character Long" })
+    .max(255, { message: "Message Cannot Be Longer Than 255 Character" }),
+});
+export const contactUsSchema = contactSchema.extend({
+  subject: z
+    .string({ message: "Subject is required" })
+    .min(3, { message: "Subject Must Be 3 Character Long" })
+    .max(255, { message: "Subject Cannot Be Longer Than 255 Character" }),
+});
+export const contactToSellerSchema = contactSchema.extend({
+  phoneNumber: z
+    .string()
+    .trim()
+    .min(8, { message: "Phone Number must be at least 8 Digits" })
+    .max(11, { message: "Phone Number Must Be Smaller Than 11 Digits" })
+    .refine(
+      (number) => {
+        return !isNaN(Number(number.toLowerCase().replace("e", "a")));
+      },
+      {
+        message: "Phone Number Must Be Valid",
+      }
+    ),
+});

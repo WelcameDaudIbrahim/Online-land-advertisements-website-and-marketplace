@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "npx prisma generate && next build",
-    "start": "next start",
+    "start": "NODE_ENV=production node server.js",
     "lint": "next lint"
   },
   "dependencies": {
@@ -41,6 +41,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "compression": "^1.7.4",
+    "emblor": "^1.4.6",
     "express": "^4.19.2",
     "isomorphic-dompurify": "^2.14.0",
     "lucide-react": "^0.408.0",
@@ -72,11 +73,5 @@
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed/seed.ts"
-  },
-  "@snaplet/seed": {
-    "config": "prisma\\seed\\seed.config.ts"
   }
 }

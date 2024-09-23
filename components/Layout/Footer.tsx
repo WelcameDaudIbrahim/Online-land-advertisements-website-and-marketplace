@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { BsInstagram, BsLinkedin, BsTwitterX, BsYoutube } from "react-icons/bs";
+import { FaFacebook } from "react-icons/fa6";
 import { TiLocation } from "react-icons/ti";
 
 export default function Footer() {
@@ -168,11 +170,31 @@ export default function Footer() {
             </div>
           </div>
           <div className="justify-start items-start gap-3 flex">
-            <div className="h-6 relative"></div>
-            <div className="h-6 relative"></div>
-            <div className="h-6 relative"></div>
-            <div className="h-6 relative"></div>
-            <div className="h-6 relative"></div>
+            <div className="">
+              <Link href="/">
+                <FaFacebook className="size-6 text-black hover:text-[#4267B2]" />
+              </Link>
+            </div>
+            <div className="">
+              <Link href="/">
+                <BsInstagram className="size-6 text-black hover:text-[#fa7e1e]" />
+              </Link>
+            </div>
+            <div className="">
+              <Link href="/">
+                <BsTwitterX className="size-6 text-black hover:text-[#0f0f0f]" />
+              </Link>
+            </div>
+            <div className="">
+              <Link href="/">
+                <BsLinkedin className="size-6 text-black hover:text-[#0e76a8]" />
+              </Link>
+            </div>
+            <div className="">
+              <Link href="/">
+                <BsYoutube className="size-6 text-black hover:text-[#c4302b]" />
+              </Link>
+            </div>
           </div>
           <div className="justify-start items-start gap-6 flex">
             <div className="text-black text-sm font-normal font-roboto underline leading-[21px]">

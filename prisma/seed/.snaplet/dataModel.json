@@ -193,12 +193,8 @@
           "isRequired": true,
           "kind": "object",
           "relationName": "AccountToUser",
-          "relationFromFields": [
-            "userId"
-          ],
-          "relationToFields": [
-            "id"
-          ],
+          "relationFromFields": ["userId"],
+          "relationToFields": ["id"],
           "isList": false,
           "isId": false,
           "isGenerated": false,
@@ -209,10 +205,7 @@
       "uniqueConstraints": [
         {
           "name": "Account_pkey",
-          "fields": [
-            "provider",
-            "providerAccountId"
-          ],
+          "fields": ["provider", "providerAccountId"],
           "nullNotDistinct": false
         }
       ]
@@ -339,9 +332,9 @@
           "maxLength": null
         },
         {
-          "id": "public.DeletedPost.thana",
-          "name": "thana",
-          "columnName": "thana",
+          "id": "public.DeletedPost.upazila",
+          "name": "upazila",
+          "columnName": "upazila",
           "type": "text",
           "isRequired": true,
           "kind": "scalar",
@@ -566,30 +559,22 @@
       "uniqueConstraints": [
         {
           "name": "DeletedPost_pkey",
-          "fields": [
-            "id"
-          ],
+          "fields": ["id"],
           "nullNotDistinct": false
         },
         {
           "name": "DeletedPost_email_key",
-          "fields": [
-            "email"
-          ],
+          "fields": ["email"],
           "nullNotDistinct": false
         },
         {
           "name": "DeletedPost_property_id_key",
-          "fields": [
-            "property_id"
-          ],
+          "fields": ["property_id"],
           "nullNotDistinct": false
         },
         {
           "name": "DeletedPost_slug_key",
-          "fields": [
-            "slug"
-          ],
+          "fields": ["slug"],
           "nullNotDistinct": false
         }
       ]
@@ -679,12 +664,8 @@
           "isRequired": true,
           "kind": "object",
           "relationName": "ImageToPost",
-          "relationFromFields": [
-            "postId"
-          ],
-          "relationToFields": [
-            "id"
-          ],
+          "relationFromFields": ["postId"],
+          "relationToFields": ["id"],
           "isList": false,
           "isId": false,
           "isGenerated": false,
@@ -695,9 +676,7 @@
       "uniqueConstraints": [
         {
           "name": "Image_pkey",
-          "fields": [
-            "id"
-          ],
+          "fields": ["id"],
           "nullNotDistinct": false
         }
       ]
@@ -824,9 +803,9 @@
           "maxLength": null
         },
         {
-          "id": "public.Post.thana",
-          "name": "thana",
-          "columnName": "thana",
+          "id": "public.Post.upazila",
+          "name": "upazila",
+          "columnName": "upazila",
           "type": "text",
           "isRequired": true,
           "kind": "scalar",
@@ -983,12 +962,8 @@
           "isRequired": true,
           "kind": "object",
           "relationName": "PostToUser",
-          "relationFromFields": [
-            "userId"
-          ],
-          "relationToFields": [
-            "id"
-          ],
+          "relationFromFields": ["userId"],
+          "relationToFields": ["id"],
           "isList": false,
           "isId": false,
           "isGenerated": false,
@@ -1013,23 +988,17 @@
       "uniqueConstraints": [
         {
           "name": "Post_pkey",
-          "fields": [
-            "id"
-          ],
+          "fields": ["id"],
           "nullNotDistinct": false
         },
         {
           "name": "Post_property_id_key",
-          "fields": [
-            "property_id"
-          ],
+          "fields": ["property_id"],
           "nullNotDistinct": false
         },
         {
           "name": "Post_slug_key",
-          "fields": [
-            "slug"
-          ],
+          "fields": ["slug"],
           "nullNotDistinct": false
         }
       ]
@@ -1197,16 +1166,12 @@
       "uniqueConstraints": [
         {
           "name": "User_pkey",
-          "fields": [
-            "id"
-          ],
+          "fields": ["id"],
           "nullNotDistinct": false
         },
         {
           "name": "User_email_key",
-          "fields": [
-            "email"
-          ],
+          "fields": ["email"],
           "nullNotDistinct": false
         }
       ]
@@ -1322,24 +1287,17 @@
       "uniqueConstraints": [
         {
           "name": "VerificationToken_pkey",
-          "fields": [
-            "id"
-          ],
+          "fields": ["id"],
           "nullNotDistinct": false
         },
         {
           "name": "VerificationToken_email_token_key",
-          "fields": [
-            "email",
-            "token"
-          ],
+          "fields": ["email", "token"],
           "nullNotDistinct": false
         },
         {
           "name": "VerificationToken_token_key",
-          "fields": [
-            "token"
-          ],
+          "fields": ["token"],
           "nullNotDistinct": false
         }
       ]

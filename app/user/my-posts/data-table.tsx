@@ -15,21 +15,33 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { toast } from "@/components/ui/use-toast";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  message: string | boolean;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  message,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+
+  if (message) {
+    toast({
+      title: "Post Created Successfully",
+      description:
+        "This post might take some time to be approved. Usually within 48 hours",
+      variant: "default",
+    });
+  }
 
   return (
     <div className="rounded-md border">

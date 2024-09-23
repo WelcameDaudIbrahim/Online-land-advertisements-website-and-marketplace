@@ -78,7 +78,7 @@ export default function PostCard({
           <div className="flex items-center gap-1 mt-1.5">
             <GrMapLocation className="text-gray-800 size-5" />
             <p className="text-black text-base font-medium font-roboto leading-[21px]">
-              {post.thana}, {post.district}, {post.division}
+              {post.upazila}, {post.district}, {post.division}
             </p>
           </div>
         </div>

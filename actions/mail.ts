@@ -29,7 +29,7 @@ export const sendVerificationMail = ({
   sendMail({
     from: "bdlord@no-reply.com",
     to: email,
-    text: "This is a verification email from Bdload. This will expire in 10 minutes. Please Verify Your Email",
+    text: "This is a verification email from Bdlord. This will expire in 10 minutes. Please Verify Your Email",
     subject: "Please Verify Your Email",
     html: `<!DOCTYPE html>
 <html>

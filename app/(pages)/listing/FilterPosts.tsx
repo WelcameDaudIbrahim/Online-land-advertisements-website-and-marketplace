@@ -13,8 +13,8 @@ export default function FilterPosts({
   page = 1,
   searchQuery = "",
 }: {
-  propertyType?: $Enums.PropertyType | undefined;
-  Propertyfor?: $Enums.PropertyFor | undefined;
+  propertyType?: $Enums.post_property_type | undefined;
+  Propertyfor?: $Enums.post_property_for | undefined;
   bedroom?: number;
   bathroom?: number;
   minAera?: number;

@@ -3,12 +3,17 @@ import React from "react";
 import PostForm from "@/components/posts/PostForm";
 import { notFound } from "next/navigation";
 import db from "@/db/db";
-import { createFile } from "@/lib/utils";
-import { headers } from "next/headers";
 import AdminBackButton from "@/app/admin/_components/AdminBackButton";
+import { Metadata } from "next";
+import { auth } from "@/auth";
 
+export const metadata: Metadata = {
+  title: "Edit Posts",
+};
 export default async function Page({ params }: { params: { id: string } }) {
   const { id } = params;
+
+  const user = await auth();
 
   if (!id) return notFound();
   let post_id: number = 0;
@@ -30,16 +35,28 @@ export default async function Page({ params }: { params: { id: string } }) {
       area: true,
       bedroom: true,
       bathroom: true,
+      facing: true,
+      parking: true,
+      selling_floor: true,
+      amenities: true,
+      total_floor: true,
+      transaction_type: true,
+      balcony: true,
+      total_land_area: true,
+      tags: true,
       property_for: true,
       property_type: true,
-      thana: true,
+      upazila: true,
+      price: true,
+      negotiable: true,
+      availableFrom: true,
       district: true,
       division: true,
-      location: true,
+      address: true,
       status: true,
       created_at: true,
       updated_at: true,
-      Images: { select: { image: true } },
+      image: { select: { image: true } },
     },
   });
 
@@ -47,7 +64,7 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   const Images: string[] = [];
 
-  const { Images: newImages, ...newPost } = post;
+  const { image: newImages, tags: postTags, ...newPost } = post;
 
   newImages.map(({ image }) => {
     Images.push(image);
@@ -59,7 +76,10 @@ export default async function Page({ params }: { params: { id: string } }) {
         <AdminBackButton />
       </div>
       <AdminBox>
-        <PostForm id={post_id} postData={{ ...newPost, images: Images }} />
+        <PostForm
+          id={post_id}
+          postData={{ ...newPost, images: Images, postTags }}
+        />
       </AdminBox>
     </div>
   );

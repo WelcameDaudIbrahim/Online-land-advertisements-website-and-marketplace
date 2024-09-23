@@ -2,19 +2,17 @@
 
 import { auth } from "@/auth";
 import db from "@/db/db";
-import { compress, createFile, sanitize } from "@/lib/utils";
+import { compress, sanitize } from "@/lib/utils";
 import { createPostSchema, updatePostSchema } from "@/zodSchema/postSchema";
 import { $Enums, Prisma } from "@prisma/client";
-import { log } from "console";
 import { existsSync } from "fs";
-import { mkdir, unlink, writeFile } from "fs/promises";
+import { mkdir, readFile, unlink, writeFile } from "fs/promises";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import path from "path";
 import sharp from "sharp";
 
-export async function post_exists(args: Prisma.PostCountArgs) {
+export async function post_exists(args: Prisma.postCountArgs) {
   const count = await db.post.count(args);
   return Boolean(count);
 }
@@ -76,12 +74,25 @@ export async function createPost(formData: FormData) {
     }
   });
 
-  const imageBuffer = Buffer.from(await data.image.arrayBuffer());
+  const sharpImageBuffer = sharp(Buffer.from(await data.image.arrayBuffer()));
   const imageFilename = Date.now() + data.image.name.replaceAll(" ", "_");
-  console.log(data.image);
 
+  const { height: imageHeight, width: imageWidth } =
+    await sharpImageBuffer.metadata();
+  if (!imageHeight || !imageWidth) return;
+
+  const imageWatermarkTop = Math.round((imageHeight - 56) / 2);
+  const imageWatermarkLeft = Math.round((imageWidth - 193) / 2);
+
+  console.log(URL.createObjectURL(data.image));
   const compressImage = await compress(
-    sharp(imageBuffer),
+    sharpImageBuffer.composite([
+      {
+        input: await readFile(`${process.cwd()}/public/assets/watermark.png`),
+        top: imageWatermarkTop,
+        left: imageWatermarkLeft,
+      },
+    ]),
     1024 * 540,
     data.image.size
   );
@@ -98,14 +109,29 @@ export async function createPost(formData: FormData) {
     console.log(error);
     return { title: ["Something Went Wrong!"] };
   }
+
   const post = await db.post.create({
     data: {
       title: data.title,
       area: data.area,
       photo: `/posts/${imageFilename}`,
+      facing: data.facing,
+      parking: data.parking,
+      selling_floor: data.selling_floor,
+      total_floor: data.total_floor,
+      transaction_type: data.transaction_type,
+      balcony: data.balcony,
+      total_land_area: data.total_land_area,
       bathroom: data.bathroom,
+      price: data.price,
+      availableFrom: data.property_for === "rent" ? data.availableFrom : null,
+      negotiable: data.isNegotiable,
       bedroom: data.bedroom,
       property_for: data.property_for,
+      tags: data.tags,
+      amenities: [
+        ...new Set(data.amenities.replaceAll("undefined", "").split(",")),
+      ].join(","),
       property_type: data.property_type,
       phoneNumber: data.phoneNumber
         .toLowerCase()
@@ -113,12 +139,12 @@ export async function createPost(formData: FormData) {
         .replace("e", ""),
       slug,
       property_id,
-      thana: data.thana,
+      upazila: data.upazila,
       district: data.district,
       division: data.division,
-      location: data.location,
+      address: data.address,
       description: sanitize(data.description),
-      User: { connect: { id: user_id } },
+      user: { connect: { id: user_id } },
     },
   });
 
@@ -131,10 +157,29 @@ export async function createPost(formData: FormData) {
 
   await Promise.all(
     photos.map(async (photo) => {
-      const buffer = Buffer.from(await photo.arrayBuffer());
+      const buffer = sharp(Buffer.from(await photo.arrayBuffer()));
       const filename = Date.now() + photo.name.replaceAll(" ", "_");
 
-      const image = await compress(sharp(buffer), 1024 * 540, photo.size);
+      const { height: imageHeight, width: imageWidth } =
+        await buffer.metadata();
+      if (!imageHeight || !imageWidth) return;
+
+      const watermarkTop = Math.round((imageHeight - 56) / 2);
+      const watermarkLeft = Math.round((imageWidth - 193) / 2);
+
+      const image = await compress(
+        buffer.composite([
+          {
+            input: await readFile(
+              `${process.cwd()}/public/assets/watermark.png`
+            ),
+            top: watermarkTop,
+            left: watermarkLeft,
+          },
+        ]),
+        1024 * 540,
+        photo.size
+      );
       if (!image) return { photos: ["Something Went Wrong!"] };
 
       try {
@@ -182,13 +227,13 @@ export async function updatePost(formData: FormData, post_id: number) {
   if (user.user.role !== "admin") {
     const isUsersPost = await db.post.findUnique({
       where: { id: post_id },
-      select: { userId: true, User: { select: { emailVerified: true } } },
+      select: { userId: true, user: { select: { emailVerified: true } } },
     });
 
     if (!isUsersPost || isUsersPost.userId !== user_id) {
       return { title: ["Something Went Wrong!"] };
     }
-    if (isUsersPost.User.emailVerified === null) {
+    if (isUsersPost.user.emailVerified === null) {
       return { title: ["You Must Verify Your E-mail"] };
     }
   }
@@ -232,8 +277,8 @@ export async function updatePost(formData: FormData, post_id: number) {
 
   const existingPost = await db.post.findUnique({
     where: { id: post_id },
-    select: { photo: true, Images: { select: { image: true } } },
-    // include: { Images: true },
+    select: { photo: true, image: { select: { image: true } } },
+    // include: { image: true },
   });
 
   if (!existingPost) {
@@ -277,8 +322,22 @@ export async function updatePost(formData: FormData, post_id: number) {
       title: data.title,
       area: data.area,
       photo: photoPathname || existingPost?.photo || "",
+      facing: data.facing,
+      parking: data.parking,
+      selling_floor: data.selling_floor,
+      total_floor: data.total_floor,
+      transaction_type: data.transaction_type,
+      balcony: data.balcony,
+      total_land_area: data.total_land_area,
       bathroom: data.bathroom,
       bedroom: data.bedroom,
+      price: data.price,
+      amenities: [
+        ...new Set(data.amenities.replaceAll("undefined", "").split(",")),
+      ].join(","),
+      availableFrom: data.property_for === "rent" ? data.availableFrom : null,
+      negotiable: data.isNegotiable,
+      tags: data.tags,
       property_for: data.property_for,
       property_type: data.property_type,
       phoneNumber: data.phoneNumber
@@ -287,13 +346,13 @@ export async function updatePost(formData: FormData, post_id: number) {
         .replace("e", ""),
       ...slug,
       property_id,
-      thana: data.thana,
+      upazila: data.upazila,
       district: data.district,
       division: data.division,
-      location: data.location,
+      address: data.address,
       status: false,
       description: sanitize(data.description),
-      User: { connect: { id: user_id } },
+      user: { connect: { id: user_id } },
     },
   });
 
@@ -305,7 +364,7 @@ export async function updatePost(formData: FormData, post_id: number) {
   }[] = [];
 
   const existing_images_path: string[] = [];
-  existingPost.Images.map(({ image }) => {
+  existingPost.image.map(({ image }) => {
     const existingPost = image.replaceAll("/posts/", "");
     existing_images_path.push(existingPost);
   });
@@ -397,8 +456,8 @@ export const getPosts = async ({
   user_id,
 }: {
   deletedPost: boolean;
-  propertyType?: $Enums.PropertyType | undefined;
-  propertyFor?: $Enums.PropertyFor | undefined;
+  propertyType?: $Enums.deletedpost_property_type | undefined;
+  propertyFor?: $Enums.deletedpost_property_for | undefined;
   minAreaNumber?: number;
   maxAreaNumber?: number;
   bedroomNumber?: number;
@@ -445,7 +504,7 @@ export const getPosts = async ({
   if (!!bathroomNumber) bathroom = { bathroom: bathroomNumber };
 
   let userId = {};
-  if (!!user_id) userId = { User: { id: user_id } };
+  if (!!user_id) userId = { user: { id: user_id } };
 
   const query = { take: take, skip: page * take - take };
   const posts = !deletedPost
@@ -459,39 +518,39 @@ export const getPosts = async ({
               },
             },
             {
+              tags: {
+                contains: search.replace(/\s+/g, " "),
+              },
+            },
+
+            {
               property_id: {
                 contains: search.replace(/\s+/g, " "),
-                mode: "insensitive",
               },
             },
             {
               title: {
                 contains: search.replace(/\s+/g, " "),
-                mode: "insensitive",
               },
             },
             {
-              thana: {
+              upazila: {
                 contains: search.replace(/\s+/g, " "),
-                mode: "insensitive",
               },
             },
             {
-              location: {
+              address: {
                 contains: search.replace(/\s+/g, " "),
-                mode: "insensitive",
               },
             },
             {
               division: {
                 contains: search.replace(/\s+/g, " "),
-                mode: "insensitive",
               },
             },
             {
               district: {
                 contains: search.replace(/\s+/g, " "),
-                mode: "insensitive",
               },
             },
           ],
@@ -517,8 +576,9 @@ export const getPosts = async ({
           userId: true,
         },
         ...query,
+        orderBy: { created_at: "desc" },
       })
-    : await db.deletedPost.findMany({
+    : await db.deletedpost.findMany({
         where: {
           OR: [
             {
@@ -529,37 +589,31 @@ export const getPosts = async ({
             {
               property_id: {
                 contains: search.replace(/\s+/g, " "),
-                mode: "insensitive",
               },
             },
             {
               title: {
                 contains: search.replace(/\s+/g, " "),
-                mode: "insensitive",
               },
             },
             {
-              thana: {
+              upazila: {
                 contains: search.replace(/\s+/g, " "),
-                mode: "insensitive",
               },
             },
             {
-              location: {
+              address: {
                 contains: search.replace(/\s+/g, " "),
-                mode: "insensitive",
               },
             },
             {
               division: {
                 contains: search.replace(/\s+/g, " "),
-                mode: "insensitive",
               },
             },
             {
               district: {
                 contains: search.replace(/\s+/g, " "),
-                mode: "insensitive",
               },
             },
           ],
@@ -583,6 +637,7 @@ export const getPosts = async ({
           updated_at: true,
           userId: true,
         },
+        orderBy: { created_at: "desc" },
       });
   return posts;
 };
@@ -596,14 +651,14 @@ export const deletePost = async (id: number) => {
 
   const existingPost = await db.post.findUnique({
     where: { id },
-    include: { Images: true, User: true },
+    include: { image: true, user: true },
   });
 
   if (!existingPost) return;
 
-  if (existingPost.Images.length > 0) {
+  if (existingPost.image.length > 0) {
     await Promise.all(
-      existingPost.Images.map(async (photo) => {
+      existingPost.image.map(async (photo) => {
         if (existsSync(path.join(process.cwd(), "/public/" + photo))) {
           await unlink(path.join(process.cwd(), "/public/" + photo));
         }
@@ -617,31 +672,43 @@ export const deletePost = async (id: number) => {
 
   const [deltedPost, post] = await db.$transaction([
     db.post.delete({ where: { id } }),
-    db.deletedPost.create({
+    db.deletedpost.create({
       data: {
+        amenities: existingPost.amenities,
         title: existingPost.title,
         area: existingPost.area,
         property_for: existingPost.property_for,
         property_type: existingPost.property_type,
-        thana: existingPost.thana,
-        location: existingPost.location,
+        upazila: existingPost.upazila,
+        address: existingPost.address,
         district: existingPost.district,
         division: existingPost.division,
         description: existingPost.description,
         property_id: existingPost.property_id,
         slug: existingPost.slug,
+        facing: existingPost.facing,
+        parking: existingPost.parking,
+        selling_floor: existingPost.selling_floor,
+        total_floor: existingPost.total_floor,
+        transaction_type: existingPost.transaction_type,
+        balcony: existingPost.balcony,
+        total_land_area: existingPost.total_land_area,
+        price: existingPost.price,
+        availableFrom: existingPost.availableFrom,
+        tags: existingPost.tags,
         phoneNumber: existingPost.phoneNumber,
         pending: existingPost.pending,
         bedroom: existingPost.bedroom,
         bathroom: existingPost.bathroom,
+        negotiable: existingPost.negotiable,
         created_at: existingPost.created_at,
         post_id: existingPost.id,
         status: existingPost.status,
         updated_at: existingPost.updated_at,
-        email: existingPost.User.email,
-        name: existingPost.User.name,
-        userId: existingPost.User.id,
-        emailVerified: existingPost.User.emailVerified,
+        email: existingPost.user.email,
+        name: existingPost.user.name,
+        userId: existingPost.user.id,
+        emailVerified: existingPost.user.emailVerified,
       },
     }),
   ]);
@@ -657,14 +724,14 @@ export const changePendingStatus = async (slug: string, isPending: boolean) => {
 
   const post = await db.post.findUnique({
     where: { slug },
-    select: { status: true, pending: true, id: true, User: true },
+    select: { status: true, pending: true, id: true, user: true },
   });
 
   if (!post) return;
   if (post.pending === isPending)
     return { message: ["Post Updated Successfully"] };
   if (post.status === true) return;
-  if (post.User.id !== user.user.id) return;
+  if (post.user.id !== user.user.id) return;
 
   await db.post.update({
     where: { id: post.id },
@@ -684,13 +751,13 @@ export const deactivatePostStatus = async (slug: string) => {
 
   const post = await db.post.findUnique({
     where: { slug },
-    select: { status: true, id: true, User: true },
+    select: { status: true, id: true, user: true },
   });
 
   if (!post) return;
   if (post.status === false)
     return { message: ["Post Deactivated Successfully"] };
-  if (post.User.id !== user.user.id) return;
+  if (post.user.id !== user.user.id) return;
 
   await db.post.update({
     where: { id: post.id },
@@ -746,8 +813,8 @@ export const getFilterPosts = async ({
   take,
   search,
 }: {
-  propertyType?: $Enums.PropertyType | undefined;
-  propertyFor?: $Enums.PropertyFor | undefined;
+  propertyType?: $Enums.post_property_type | undefined;
+  propertyFor?: $Enums.post_property_for | undefined;
   minAreaNumber?: number;
   maxAreaNumber?: number;
   bedroomNumber?: number;
@@ -795,38 +862,37 @@ export const getFilterPosts = async ({
         {
           title: {
             contains: search.replace(/\s+/g, " "),
-            mode: "insensitive",
           },
         },
         {
-          thana: {
+          upazila: {
             contains: search.replace(/\s+/g, " "),
-            mode: "insensitive",
           },
         },
         {
-          location: {
+          tags: {
             contains: search.replace(/\s+/g, " "),
-            mode: "insensitive",
+          },
+        },
+        {
+          address: {
+            contains: search.replace(/\s+/g, " "),
           },
         },
         {
           division: {
             contains: search.replace(/\s+/g, " "),
-            mode: "insensitive",
           },
         },
         {
           district: {
             contains: search.replace(/\s+/g, " "),
-            mode: "insensitive",
           },
         },
       ],
       // description: {
       //   contains: search.replace(/\s+/g, " "),
-      //   mode: "insensitive",
-      // },
+      //         // },
       ...property_type,
       ...property_for,
       area: { ...minArea, ...maxArea },
@@ -841,7 +907,7 @@ export const getFilterPosts = async ({
       bedroom: true,
       photo: true,
       area: true,
-      thana: true,
+      upazila: true,
       division: true,
       district: true,
       updated_at: true,

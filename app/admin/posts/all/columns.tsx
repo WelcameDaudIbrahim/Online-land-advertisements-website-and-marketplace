@@ -151,6 +151,8 @@ export const columns: ColumnDef<Post>[] = [
 export default function MoreColumns({ row }: { row: Row<Post> }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  if (searchParams === null) return null;
+  if (pathname === null) return null;
 
   const id = row.getValue("id");
   const status = row.getValue("status");

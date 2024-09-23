@@ -23,9 +23,9 @@ export default function Images({
   return (
     <>
       <div>
-        <div className="px-4 py-2.5 flex flex-col items-center justify-start">
+        <div className="px-4 py-2.5 flex flex-row items-center justify-start">
           <div
-            className={`rounded-md p-2 hover:border-primary hover:outline-primary cursor-pointer border outline outline-transparent border-gray-400 mt-3.5 ${
+            className={`rounded-md p-2 hover:border-primary hover:outline-primary cursor-pointer border outline outline-transparent border-gray-400 ml-3.5 ${
               photo === photoSrc && "outline-primary border-primary"
             }`}
           >
@@ -46,7 +46,7 @@ export default function Images({
                 <div
                   key={image.id}
                   onClick={() => setPhotoSrc(image_path)}
-                  className={`rounded-md p-2 hover:border-primary hover:outline-primary cursor-pointer border outline outline-transparent border-gray-400 mt-3.5 ${
+                  className={`rounded-md p-2 hover:border-primary hover:outline-primary cursor-pointer border outline outline-transparent border-gray-400 ml-3.5 ${
                     image_path === photoSrc && "outline-primary border-primary"
                   }`}
                 >
@@ -70,7 +70,7 @@ export default function Images({
           width={800}
           quality={80}
           alt="Image"
-          className=" !w-auto !max-h-[440px] !h-[100%] object-cover rounded-sm"
+          className="!min-h-[344px] !w-auto !max-h-[440px] !h-[100%] object-cover rounded-sm"
         />
       </div>
     </>

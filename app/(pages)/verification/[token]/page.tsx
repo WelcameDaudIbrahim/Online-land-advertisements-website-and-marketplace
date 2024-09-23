@@ -7,7 +7,7 @@ export default async function page({ params }: { params: { token: string } }) {
   const { token } = params;
   if (!token) return notFound();
 
-  const existingToken = await db.verificationToken.findFirst({
+  const existingToken = await db.verificationtoken.findFirst({
     where: { token },
   });
   if (!existingToken) return notFound();
@@ -18,7 +18,7 @@ export default async function page({ params }: { params: { token: string } }) {
   if (!user || user.emailVerified) return notFound();
 
   if (new Date(existingToken.expires) <= new Date()) {
-    await db.verificationToken.delete({
+    await db.verificationtoken.delete({
       where: {
         token,
       },
@@ -31,7 +31,7 @@ export default async function page({ params }: { params: { token: string } }) {
     data: { emailVerified: new Date(), email: existingToken.email },
   });
 
-  await db.verificationToken.delete({
+  await db.verificationtoken.delete({
     where: { token },
   });
   return (

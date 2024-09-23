@@ -18,6 +18,7 @@ import {
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { TbMenuDeep } from "react-icons/tb";
+import { LuMessagesSquare } from "react-icons/lu";
 
 const links = [
   {
@@ -34,6 +35,11 @@ const links = [
     title: "Create Post",
     icon: MdOutlineCreate,
     href: "/post/create",
+  },
+  {
+    title: "Messages",
+    icon: LuMessagesSquare,
+    href: "/messages",
   },
   {
     title: "Settings",

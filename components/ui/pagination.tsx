@@ -137,6 +137,8 @@ const FullPagination = ({
       : undefined;
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  if (searchParams === null) return null;
+  if (pathname === null) return null;
 
   const pageNumbers = [];
   if (totalPages !== undefined) {

@@ -63,9 +63,9 @@ export default function Navbar() {
   // const [isLangOpen, setLangOpen] = useState<boolean>(false);
   return (
     <div className="w-full h-[56px] md:h-[77px] shadow-">
-      <div className="w-container mx-auto h-full flex items-center justify-between px-0.5 md:px-3.5 pt-0.5 lg:p-0">
-        <div className="flex items-center justify-start gap-16">
-          <div className="flex items-center md:gap-5 gap-1.5 logo justify-center ml-2.5 md:ml-8">
+      <div className="w-container mx-auto h-full flex items-center justify-between px-0.5 pt-0.5 lg:p-0">
+        <div className="flex items-center justify-start md:gap-2 lg:gap-16">
+          <div className="flex items-center md:gap-5 gap-1.5 logo justify-center ml-3.5 lg:ml-8">
             <MobileNav />
             <Link href="/">
               <Image
@@ -93,7 +93,7 @@ export default function Navbar() {
             ))}
           </div>
         </div>
-        <div className="flex items-center mr-1.5 gap-5 md:gap-8 md:mr-12">
+        <div className="flex items-center mr-1.5 gap-5 md:gap-8 md:mr-6 lg:mr-12">
           <Navbar_Avatar />
           {/* <DropdownMenu onOpenChange={(open) => setLangOpen(open)}>
             <DropdownMenuTrigger className="font-roboto-condensed text-base text-center mr-12 flex items-center gap-2">
@@ -118,7 +118,7 @@ export default function Navbar() {
             </DropdownMenuContent>
           </DropdownMenu> */}
           <Link href="/user/post/create">
-            <Button className="relative ml-0 md:ml-8 px-2.5 md:px-4 py-0 h-[34.6px] md:h-auto md:py-2.5 bg-secondary rounded-sm justify-center items-center border-none hover-none drop-shadow-[2px_2px_0px_rgba(0,0,0,0.55))] text-zinc-100 text-xs md:text-base font-medium font-roboto leading-3 md:leading-normal tracking-tight">
+            <Button className="relative ml-0 lg:ml-8 px-2.5 md:px-4 py-0 h-[34.6px] md:h-auto md:py-2.5 bg-secondary rounded-sm justify-center items-center border-none hover-none drop-shadow-[2px_2px_0px_rgba(0,0,0,0.55))] text-zinc-100 text-xs md:text-base font-medium font-roboto leading-3 md:leading-normal tracking-tight">
               <span className="absolute top-[-24%] md:top-[-12%] left-[-15%] md:left-auto right-auto md:right-[-15%] text-white bg-primary border border-primary-dark text-[8px] md:text-xs px-1 py-0.5 rounded-sm">
                 Free
               </span>

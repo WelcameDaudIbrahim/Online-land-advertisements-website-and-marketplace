@@ -20,8 +20,10 @@ const quicksand = Quicksand({
 });
 
 export const metadata: Metadata = {
-  title: "Home - BdLord",
-  description: "Created By BdLord",
+  title: { absolute: "Home - BdLord", template: "%s - BdLord" },
+  description:
+    "Looking for properties in Bangladesh? Bdlord makes it easy to find the best deals on homes, apartments, and land. Your ideal property is just a click away.",
+  twitter: { card: "summary_large_image" },
 };
 
 export default async function RootLayout({
@@ -42,7 +44,7 @@ export default async function RootLayout({
           )}
         >
           {children}
-          {process.env.NODE_ENV === "production" && <Deployment />}
+          {/* {process.env.NODE_ENV === "production" && <Deployment />} */}
           <Toaster />
         </body>
       </html>

@@ -1,12 +1,17 @@
-"use client";
 import React from "react";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import useAuth from "@/hooks/useAuth";
+import { Metadata } from "next";
+import { auth } from "@/auth";
+import { notFound } from "next/navigation";
 
-export default function Page() {
-  const user = useAuth();
+export const metadata: Metadata = {
+  title: "My Account",
+};
+export default async function Page() {
+  const user = await auth();
+  if (!user) return notFound();
   return (
     <div>
       <h1 className="text-black font-roboto text-3xl mb-3 font-medium tracking-wide">
@@ -16,7 +21,7 @@ export default function Page() {
         <TableBody>
           <TableRow>
             <TableCell className="font-medium tracking-wide">Name</TableCell>
-            <TableCell>{user?.name}</TableCell>
+            <TableCell>{user?.user.name}</TableCell>
             <TableCell className="text-right">
               <Link href="/user/settings">
                 <Button variant="ghost">Update</Button>
@@ -25,7 +30,7 @@ export default function Page() {
           </TableRow>
           <TableRow>
             <TableCell className="font-medium tracking-wide">Email</TableCell>
-            <TableCell>{user?.email}</TableCell>
+            <TableCell>{user?.user.email}</TableCell>
             <TableCell className="text-right">
               <Link href="/user/settings">
                 <Button variant="ghost">Update</Button>
@@ -35,7 +40,7 @@ export default function Page() {
           <TableRow>
             <TableCell className="font-medium tracking-wide">Status</TableCell>
             <TableCell>
-              {user?.emailVerified ? (
+              {user?.user.emailVerified ? (
                 <p className="text-base font-roboto tracking-wide text-emerald-800">
                   Verified
                 </p>

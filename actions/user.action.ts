@@ -15,6 +15,7 @@ import path from "path";
 import sharp from "sharp";
 import { compare, hash } from "bcryptjs";
 import { sendVerificationMail } from "./mail";
+import { revalidatePath } from "next/cache";
 
 export const updateSettings = async (
   prevState: unknown,
@@ -178,7 +179,7 @@ export const changePassword = async (
 };
 
 export const getEmailByToken = async (token: string) => {
-  const verification_token = await db.verificationToken.findUnique({
+  const verification_token = await db.verificationtoken.findUnique({
     where: { token },
     select: { email: true },
   });
@@ -187,7 +188,7 @@ export const getEmailByToken = async (token: string) => {
 };
 
 export const getTokenByUserId = async (id: string) => {
-  const verification_token = await db.verificationToken.findFirst({
+  const verification_token = await db.verificationtoken.findFirst({
     where: { user_id: id },
     select: { token: true },
   });
@@ -195,7 +196,7 @@ export const getTokenByUserId = async (id: string) => {
   return verification_token.token;
 };
 export const getTokenByEmail = async (email: string) => {
-  const verification_token = await db.verificationToken.findFirst({
+  const verification_token = await db.verificationtoken.findFirst({
     where: { email },
     select: { token: true },
   });
@@ -212,12 +213,12 @@ export const sendVerification = async (email: string) => {
 
   const existingToken = await getTokenByEmail(email);
   if (existingToken) {
-    await db.verificationToken.delete({
+    await db.verificationtoken.delete({
       where: { token: existingToken },
     });
   }
 
-  const token = await db.verificationToken.create({
+  const token = await db.verificationtoken.create({
     data: {
       email,
       user_id: existingUser.id,
@@ -231,5 +232,31 @@ export const sendVerification = async (email: string) => {
     link: `${process.env.NEXT_PUBLIC_SITE_URL}/verification/${token.token}/`,
   });
 
+  return true;
+};
+
+export const changeContactUsStatus = async (id: number, status: string) => {
+  const user = await auth();
+
+  if (!user) return false;
+
+  const existingContactUs = await db.contactus.findUnique({
+    where: { id },
+    select: { id: true, status: true, messageTo: true },
+  });
+
+  if (!existingContactUs) return false;
+  if (existingContactUs.status === status) return true;
+
+  if (user.user.role !== "admin") {
+    if (user.user.id !== existingContactUs.messageTo) return false;
+  }
+
+  await db.contactus.update({
+    where: { id, messageTo: user.user.id },
+    data: { status },
+  });
+
+  revalidatePath(`/admin/contact_us/${id}`);
   return true;
 };

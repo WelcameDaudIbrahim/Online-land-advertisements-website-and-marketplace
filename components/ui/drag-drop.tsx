@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { cache, useEffect, useMemo, useRef, useState } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import { ImCancelCircle } from "react-icons/im";
 import {
@@ -33,7 +33,7 @@ const DragDropCard = ({
       setPercentage(100);
     }, 568);
   }, []);
-  const last_text = file.name.length > 28 && "...";
+  const last_text = file.name.length > 28 ? "..." : "";
   const name = file.name.substring(0, 28) + last_text;
   return (
     <div className="w-full relative flex items-center flex-col">
@@ -80,6 +80,8 @@ const Dragdrop = ({
   allowedFileTypes,
   defaultValue,
   onError,
+  files,
+  setFiles,
 }: // onRemove,
 {
   className?: string;
@@ -89,38 +91,12 @@ const Dragdrop = ({
   maxFileAllowed?: number;
   allowedFileTypes: string;
   onError?: (error: string) => void;
+  files: File[];
+  setFiles: React.Dispatch<React.SetStateAction<File[]>>;
   // onRemove?: (url: string) => void;
 }) => {
   const [isDraging, setIsDraging] = useState<boolean>(false);
   // const [mainFile, setMainFile] = useState<File[]>([]);
-
-  const [files, setFiles] = useState<File[]>([]);
-
-  useEffect(() => {
-    if (defaultValue !== undefined) {
-      const addValue = async () => {
-        const newFiles = await Promise.all(
-          defaultValue.map(async (val) => {
-            let response = await fetch(IMAGES_PATH_PREFIX + val);
-            let data = await response.blob();
-            let metadata = {
-              type: "image/" + val.split(".").at(-1) || "image/png",
-            };
-
-            const file = new File(
-              [data],
-              val.split("/").at(-1) || "image.png",
-              metadata
-            );
-            return file;
-          })
-        );
-        setFiles(newFiles);
-        onFilesSelected(newFiles);
-      };
-      addValue();
-    }
-  }, []);
 
   const FilesCheck = (newFiles: File[]) => {
     if (files.length >= maxFileAllowed) {
