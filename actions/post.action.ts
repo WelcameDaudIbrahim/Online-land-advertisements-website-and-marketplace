@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import db from "@/db/db";
 import { compress, sanitize } from "@/lib/utils";
+import { deleteFile, saveSharpFile } from "@/save_file";
 import { createPostSchema, updatePostSchema } from "@/zodSchema/postSchema";
 import { $Enums, Prisma } from "@prisma/client";
 import { existsSync } from "fs";
@@ -98,12 +99,13 @@ export async function createPost(formData: FormData) {
   if (!compressImage) return { image: ["Something Went Wrong!"] };
 
   try {
-    const filepath = "public/posts/";
-    await mkdir(filepath, { recursive: true });
-    await writeFile(
-      path.join(process.cwd(), filepath + imageFilename),
-      compressImage
-    );
+    // const filepath = "public/posts/";
+    // await mkdir(filepath, { recursive: true });
+    // await writeFile(
+    //   path.join(process.cwd(), filepath + imageFilename),
+    //   compressImage
+    // );
+    await saveSharpFile(compressImage, imageFilename);
   } catch (error) {
     console.log(error);
     return { title: ["Something Went Wrong!1"] };
@@ -113,7 +115,7 @@ export async function createPost(formData: FormData) {
     data: {
       title: data.title,
       area: data.area,
-      photo: `/posts/${imageFilename}`,
+      photo: `${imageFilename}`,
       facing: data.facing,
       parking: data.parking,
       selling_floor: data.selling_floor,
@@ -182,10 +184,11 @@ export async function createPost(formData: FormData) {
       if (!image) return { photos: ["Something Went Wrong!2"] };
 
       try {
-        const filepath = "public/posts/";
-        await mkdir(filepath, { recursive: true });
-        await writeFile(path.join(process.cwd(), filepath + filename), image);
-        images_path.push({ image: `/posts/${filename}`, postId: post.id });
+        // const filepath = "public/posts/";
+        // await mkdir(filepath, { recursive: true });
+        // await writeFile(path.join(process.cwd(), filepath + filename), image);
+        await saveSharpFile(image, filename);
+        images_path.push({ image: `${filename}`, postId: post.id });
       } catch (error) {
         console.log(error);
         return { avatar: ["Something Went Wrong!3"] };
@@ -296,24 +299,27 @@ export async function updatePost(formData: FormData, post_id: number) {
     if (!compressImage) return { image: ["Something Went Wrong!"] };
 
     try {
-      if (
-        existsSync(path.join(process.cwd(), "/public/" + existingPost.photo))
-      ) {
-        await unlink(path.join(process.cwd(), "/public/" + existingPost.photo));
-      }
-      const filepath = "public/posts/";
-      await mkdir(filepath, { recursive: true });
-      await writeFile(
-        path.join(process.cwd(), filepath + imageFilename),
-        compressImage
-      );
+      // if (
+      //   existsSync(path.join(process.cwd(), "/public/" + existingPost.photo))
+      // ) {
+      //   await unlink(path.join(process.cwd(), "/public/" + existingPost.photo));
+      // }
+      await deleteFile(existingPost.photo);
+
+      // const filepath = "public/posts/";
+      // await mkdir(filepath, { recursive: true });
+      // await writeFile(
+      //   path.join(process.cwd(), filepath + imageFilename),
+      //   compressImage
+      // );
+      await saveSharpFile(compressImage, imageFilename);
     } catch (error) {
       console.log(error);
       return { title: ["Something Went Wrong!"] };
     }
   }
 
-  const photoPathname = imageFilename && `/posts/${imageFilename}`;
+  const photoPathname = imageFilename && `${imageFilename}`;
 
   const post = await db.post.update({
     where: { id: post_id },
@@ -384,9 +390,10 @@ export async function updatePost(formData: FormData, post_id: number) {
   if (delete_images_path.length > 0) {
     await Promise.all(
       delete_images_path.map(async (photo) => {
-        if (existsSync(path.join(process.cwd(), "/public/posts/" + photo))) {
-          await unlink(path.join(process.cwd(), "/public/posts/" + photo));
-        }
+        // if (existsSync(path.join(process.cwd(), "/public/posts/" + photo))) {
+        //   await unlink(path.join(process.cwd(), "/public/posts/" + photo));
+        // }
+        await deleteFile(photo);
       })
     );
   }
@@ -401,11 +408,12 @@ export async function updatePost(formData: FormData, post_id: number) {
         if (!image) return { photos: ["Something Went Wrong!"] };
 
         try {
-          const filepath = "public/posts/";
-          await mkdir(filepath, { recursive: true });
-          await writeFile(path.join(process.cwd(), filepath + filename), image);
+          // const filepath = "public/posts/";
+          // await mkdir(filepath, { recursive: true });
+          // await writeFile(path.join(process.cwd(), filepath + filename), image);
+          await saveSharpFile(image, filename);
           images_path.push({
-            image: `/posts/${filename}`,
+            image: `${filename}`,
             postId: post.id,
           });
         } catch (error) {
@@ -425,7 +433,7 @@ export async function updatePost(formData: FormData, post_id: number) {
     await Promise.all(
       delete_images_path.map(async (image_path) => {
         await db.image.deleteMany({
-          where: { image: `/posts/${image_path}`, postId: post.id },
+          where: { image: `${image_path}`, postId: post.id },
         });
       })
     );

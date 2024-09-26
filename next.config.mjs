@@ -16,13 +16,13 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "images.bdlord.com",
+        hostname: "photos.bdlord.com",
         port: "",
         pathname: "**",
       },
       {
         protocol: "http",
-        hostname: "images.bdlord.com",
+        hostname: "photos.bdlord.com",
         port: "",
         pathname: "**",
       },

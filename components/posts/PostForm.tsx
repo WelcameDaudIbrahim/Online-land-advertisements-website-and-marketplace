@@ -324,6 +324,8 @@ export default function PostForm({
         const newFiles = await Promise.all(
           postData?.images.map(async (val) => {
             let response = await fetch(IMAGES_PATH_PREFIX + val);
+            // console.log(val);
+
             let data = await response.blob();
             let metadata = {
               type: "image/" + val.split(".").at(-1) || "image/png",
