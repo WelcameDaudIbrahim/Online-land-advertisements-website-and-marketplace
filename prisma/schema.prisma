@@ -1,10 +1,9 @@
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-1.0.x"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -22,10 +21,9 @@ model account {
   session_state     String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  user              user     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Account_userId_fkey")
+  user              user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([provider, providerAccountId])
-  @@index([userId], map: "Account_userId_fkey")
 }
 
 model contactus {
@@ -41,11 +39,8 @@ model contactus {
   messageTo   String?
   postId      Int?
   phoneNumber String?
-  user        user?    @relation(fields: [messageTo], references: [id], onDelete: Cascade, map: "ContactUs_messageTo_fkey")
-  post        post?    @relation(fields: [postId], references: [id], onDelete: Cascade, map: "ContactUs_postId_fkey")
-
-  @@index([postId], map: "ContactUs_postId_fkey")
-  @@index([messageTo], map: "ContactUs_messageTo_fkey")
+  user        user?    @relation(fields: [messageTo], references: [id], onDelete: Cascade)
+  post        post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
 
 model deletedpost {
@@ -95,9 +90,7 @@ model image {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   postId     Int
-  post       post     @relation(fields: [postId], references: [id], onDelete: Cascade, map: "Image_postId_fkey")
-
-  @@index([postId], map: "Image_postId_fkey")
+  post       post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
 
 model post {
@@ -136,9 +129,7 @@ model post {
   amenities        String              @default(",")
   contactus        contactus[]
   image            image[]
-  user             user                @relation(fields: [userId], references: [id], map: "Post_userId_fkey")
-
-  @@index([userId], map: "Post_userId_fkey")
+  user             user                @relation(fields: [userId], references: [id])
 }
 
 model resetpasswordtoken {
