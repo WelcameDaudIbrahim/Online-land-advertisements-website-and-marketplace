@@ -84,7 +84,6 @@ export async function createPost(formData: FormData) {
   const imageWatermarkTop = Math.round((imageHeight - 56) / 2);
   const imageWatermarkLeft = Math.round((imageWidth - 193) / 2);
 
-  console.log(URL.createObjectURL(data.image));
   const compressImage = await compress(
     sharpImageBuffer.composite([
       {
@@ -107,7 +106,7 @@ export async function createPost(formData: FormData) {
     );
   } catch (error) {
     console.log(error);
-    return { title: ["Something Went Wrong!"] };
+    return { title: ["Something Went Wrong!1"] };
   }
 
   const post = await db.post.create({
@@ -180,7 +179,7 @@ export async function createPost(formData: FormData) {
         1024 * 540,
         photo.size
       );
-      if (!image) return { photos: ["Something Went Wrong!"] };
+      if (!image) return { photos: ["Something Went Wrong!2"] };
 
       try {
         const filepath = "public/posts/";
@@ -189,7 +188,7 @@ export async function createPost(formData: FormData) {
         images_path.push({ image: `/posts/${filename}`, postId: post.id });
       } catch (error) {
         console.log(error);
-        return { avatar: ["Something Went Wrong!"] };
+        return { avatar: ["Something Went Wrong!3"] };
       }
     })
   );

@@ -16,28 +16,28 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "bdlord",
+        hostname: "images.bdlord.com",
         port: "",
         pathname: "**",
       },
       {
         protocol: "http",
-        hostname: "bdlord",
+        hostname: "images.bdlord.com",
         port: "",
         pathname: "**",
       },
-      {
-        protocol: process.env.NEXT_PUBLIC_SITE_URL.split("://")[0],
-        hostname: process.env.NEXT_PUBLIC_SITE_URL.split(":")[1].replace(
-          "//",
-          ""
-        ),
-        port:
-          (process.env.NEXT_PUBLIC_SITE_URL.replace("://", "").includes(":") &&
-            process.env.NEXT_PUBLIC_SITE_URL.split(":").at(-1)) ||
-          "",
-        pathname: "/api/images/**",
-      },
+      // {
+      //   protocol: process.env.NEXT_PUBLIC_SITE_URL.split("://")[0],
+      //   hostname: process.env.NEXT_PUBLIC_SITE_URL.split(":")[1].replace(
+      //     "//",
+      //     ""
+      //   ),
+      //   port:
+      //     (process.env.NEXT_PUBLIC_SITE_URL.replace("://", "").includes(":") &&
+      //       process.env.NEXT_PUBLIC_SITE_URL.split(":").at(-1)) ||
+      //     "",
+      //   pathname: "/api/images/**",
+      // },
     ],
   },
   // output: "export",

@@ -23,6 +23,7 @@ import { IMAGES_PATH_PREFIX } from "@/routes";
 export function AvatarChange() {
   const user = useAuth();
 
+  const [updateButton, setUpdateButton] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(
     user?.image
       ? user.image.startsWith("https://")
@@ -77,6 +78,7 @@ export function AvatarChange() {
 
                         if (file) {
                           setAvatarSrc(URL.createObjectURL(file));
+                          setUpdateButton(true);
                         }
                       }
                     }}
@@ -91,12 +93,11 @@ export function AvatarChange() {
             >
               Change Avatar
             </label>
-            {avatarSrc !== user?.image &&
-              avatarSrc !== "/assets/profile.png" && (
-                <SubmitButton className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-[#008000] hover:text-white h-9 rounded-md px-3 tracking-wider mt-0.5 cursor-pointer bg-transparent text-[#008000]">
-                  ✔ Update
-                </SubmitButton>
-              )}
+            {updateButton && (
+              <SubmitButton className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-[#008000] hover:text-white h-9 rounded-md px-3 tracking-wider mt-0.5 cursor-pointer bg-transparent text-[#008000]">
+                ✔ Update
+              </SubmitButton>
+            )}
             {state?.avatar &&
               state?.avatar.map((message) => (
                 <p

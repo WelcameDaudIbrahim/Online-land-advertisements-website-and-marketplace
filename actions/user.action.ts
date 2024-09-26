@@ -16,6 +16,7 @@ import sharp from "sharp";
 import { compare, hash } from "bcryptjs";
 import { sendVerificationMail } from "./mail";
 import { revalidatePath } from "next/cache";
+import { deleteFile, saveSharpFile } from "@/save_file";
 
 export const updateSettings = async (
   prevState: unknown,
@@ -115,22 +116,24 @@ export const changeAvatar = async (prevState: unknown, formData: FormData) => {
     const filepath = "public/uploads/avatar/";
 
     if (existingUser.image !== "/assets/profile.png") {
-      if (
-        existsSync(path.join(process.cwd(), "/public/" + existingUser.image))
-      ) {
-        await unlink(path.join(process.cwd(), "/public/" + existingUser.image));
-      }
+      // if (
+      //   existsSync(path.join(process.cwd(), "/public/" + existingUser.image))
+      // ) {
+      //   await unlink(path.join(process.cwd(), "/public/" + existingUser.image));
+      // }
+      await deleteFile(existingUser.image);
     }
-    await mkdir(filepath, { recursive: true });
-    await writeFile(path.join(process.cwd(), filepath + filename), image);
+    // await mkdir(filepath, { recursive: true });
+    // await writeFile(path.join(process.cwd(), filepath + filename), image);
+    await saveSharpFile(image, filename);
   } catch (error) {
-    console.log(error);
+    console.log(error, "1");
     return { avatar: ["Something Went Wrong!"] };
   }
 
   await db.user.update({
     where: { id: user.user.id },
-    data: { image: `/uploads/avatar/${filename}` },
+    data: { image: `${filename}` },
   });
 
   return { avatar: ["200"] };

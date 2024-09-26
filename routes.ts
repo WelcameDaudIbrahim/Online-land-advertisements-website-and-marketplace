@@ -12,5 +12,4 @@ export const AUTH_ROUTES: string[] = [
 
 export const DEFAULT_REDIRECT_AFTER_LOGIN: string = "/reload";
 
-// post path prefix so this doees not break in production
-export const IMAGES_PATH_PREFIX: string = `${process.env.NEXT_PUBLIC_SITE_URL}/api/images/`;
+export const IMAGES_PATH_PREFIX: string = `https://photos.bdlord.com/image/`;
