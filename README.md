@@ -1,4 +1,4 @@
-This is a [Next.js] project
+This is a Next.js project
 
 The Preview is [`(https://bdl-brown.vercel.app/)`](https://bdl-brown.vercel.app/)
 
